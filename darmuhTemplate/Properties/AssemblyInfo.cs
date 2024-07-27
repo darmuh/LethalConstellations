@@ -1,16 +1,16 @@
 ﻿using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
-using static OpenLib.Plugin;
+using static Template.Plugin;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("OpenLib")]
-[assembly: AssemblyDescription("https://github.com/darmuh/OpenLib")]
+[assembly: AssemblyTitle("Template")]
+[assembly: AssemblyDescription("https://github.com/darmuh/Template")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("OpenLib")]
+[assembly: AssemblyProduct("Template")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

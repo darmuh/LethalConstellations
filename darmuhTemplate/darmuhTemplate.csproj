@@ -7,8 +7,8 @@
     <ProjectGuid>{E2700ABC-7BC7-4BD0-B787-EFFE68445B6A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OpenLib</RootNamespace>
-    <AssemblyName>OpenLib</AssemblyName>
+    <RootNamespace>Template</RootNamespace>
+    <AssemblyName>Template</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -35,16 +35,6 @@
     <DebugSymbols>true</DebugSymbols>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'steamdir|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>C:\Program Files %28x86%29\Steam\steamapps\common\Lethal Company\BepInEx\plugins\darmuh-darmuhsTerminalStuff\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <DebugType>portable</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>latest</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
   <PropertyGroup>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>embedded</DebugType>
@@ -70,6 +60,9 @@
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\core\BepInEx.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="BepInEx.AssemblyPublicizer.MSBuild">
+      <HintPath>Z:\games\modding\LC\darmuhsTerminalStuff\darmuhsTerminalStuff\DarmuhsTerminalCommands\bin\Debug\BepInEx.AssemblyPublicizer.MSBuild.dll</HintPath>
+    </Reference>
     <Reference Include="BMX.LobbyCompatibility">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\LobbyCompatibility\BMX.LobbyCompatibility.dll</HintPath>
     </Reference>
@@ -78,17 +71,8 @@
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Facepunch.Steamworks.Win64.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="FovAdjust">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\Rozebud-FOV_Adjust\FovAdjust.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="OpenBodyCams">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\Zaggy1024-OpenBodyCams\OpenBodyCams.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="suitsTerminal">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\suitsTerminal.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="OpenLib">
+      <HintPath>Z:\games\modding\LC\publicDevLibrary\OpenLib\bin\Debug\OpenLib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -164,33 +148,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Compat\BMX_LobbyCompat.cs" />
-    <Compile Include="ConfigManager\ConfigMisc.cs" />
-    <Compile Include="ConfigManager\ManagedBool.cs" />
-    <Compile Include="CoreMethods\AddingThings.cs" />
-    <Compile Include="CoreMethods\CommonThings.cs" />
-    <Compile Include="CoreMethods\ListManagement.cs" />
-    <Compile Include="CoreMethods\MainListing.cs" />
-    <Compile Include="Events\EventManager.cs" />
-    <Compile Include="Events\Events.cs" />
-    <Compile Include="Events\EventUsage.cs" />
-    <Compile Include="CoreMethods\DynamicBools.cs" />
-    <Compile Include="CoreMethods\RemoveThings.cs" />
-    <Compile Include="CoreMethods\LogicHandling.cs" />
-    <Compile Include="Common\CommonEnums.cs" />
-    <Compile Include="Common\CommonTerminal.cs" />
-    <Compile Include="Common\Misc.cs" />
-    <Compile Include="Common\CommonStringStuff.cs" />
-    <Compile Include="Menus\MenuStuff.cs" />
-    <Compile Include="Menus\TerminalMenu.cs" />
-    <Compile Include="Menus\MenuBuild.cs" />
-    <Compile Include="PatchThings\OtherPatches.cs" />
-    <Compile Include="Menus\PageBuilder.cs" />
+    <Compile Include="Events\Subscribers.cs" />
     <Compile Include="ConfigManager\ConfigSetup.cs" />
-    <Compile Include="PatchThings\TerminalPatcher.cs" />
     <Compile Include="PluginCore\Plugin.cs" />
-    <Compile Include="Common\StartGame.cs" />
-    <Compile Include="Common\Teleporter.cs" />
-    <Compile Include="Common\TerminalStart.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

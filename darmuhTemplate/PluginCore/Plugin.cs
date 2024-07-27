@@ -1,16 +1,14 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using OpenLib.ConfigManager;
-using OpenLib.CoreMethods;
-using OpenLib.Events;
-using System.Collections.Generic;
+using Template.ConfigManager;
+using Template.Events;
 using System.Reflection;
 
 
-namespace OpenLib
+namespace Template
 {
-    [BepInPlugin("darmuh.OpenLib", "OpenLib", (PluginInfo.PLUGIN_VERSION))]
+    [BepInPlugin("darmuh.Template", "Template", (PluginInfo.PLUGIN_VERSION))]
 
 
     public class Plugin : BaseUnityPlugin
@@ -18,8 +16,8 @@ namespace OpenLib
         public static Plugin instance;
         public static class PluginInfo
         {
-            public const string PLUGIN_GUID = "darmuh.OpenLib";
-            public const string PLUGIN_NAME = "OpenLib";
+            public const string PLUGIN_GUID = "darmuh.Template";
+            public const string PLUGIN_NAME = "Template";
             public const string PLUGIN_VERSION = "0.0.1";
         }
         
@@ -27,14 +25,7 @@ namespace OpenLib
 
         //Compatibility
         public bool LobbyCompat = false;
-        public bool TerminalFormatter = false;
-
-        public static List<TerminalKeyword> keywordsAdded = [];
-        public static List<TerminalNode> nodesAdded = [];
-
         public Terminal Terminal;
-        public static List<TerminalNode> Allnodes = [];
-        public static List<TerminalNode> ShopNodes = [];
 
 
         private void Awake()
@@ -42,13 +33,9 @@ namespace OpenLib
             instance = this;
             Log = base.Logger;
             Log.LogInfo((object)$"{PluginInfo.PLUGIN_NAME} is loading with version {PluginInfo.PLUGIN_VERSION}!");
-            ConfigSetup.defaultManagedBools = new();
-            ConfigSetup.defaultListing = new();
-            CommandRegistry.InitListing(ref ConfigSetup.defaultListing);
-            ConfigSetup.BindConfigSettings(ConfigSetup.defaultManagedBools);
-            Config.ConfigReloaded += ConfigMisc.OnConfigReloaded;
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
-            EventUsage.Subscribers();
+            ConfigSetup.BindConfigSettings();
+            Subscribers.Subscribe();
             Log.LogInfo($"{PluginInfo.PLUGIN_NAME} load complete!");
         }
 
