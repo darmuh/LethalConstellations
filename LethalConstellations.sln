@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34316.72
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LethalConstellations", "darmuhTemplate\LethalConstellations.csproj", "{E2700ABC-7BC7-4BD0-B787-EFFE68445B6A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LethalConstellations", "LethalConstellations\LethalConstellations.csproj", "{E2700ABC-7BC7-4BD0-B787-EFFE68445B6A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
