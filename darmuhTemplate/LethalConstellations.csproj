@@ -7,8 +7,8 @@
     <ProjectGuid>{E2700ABC-7BC7-4BD0-B787-EFFE68445B6A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Template</RootNamespace>
-    <AssemblyName>Template</AssemblyName>
+    <RootNamespace>LethalConstellations</RootNamespace>
+    <AssemblyName>LethalConstellations</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -41,9 +41,9 @@
     <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="PluginCore\_Release Files\CHANGELOG.md" />
-    <None Include="PluginCore\_Release Files\manifest.json" />
-    <None Include="PluginCore\_Release Files\README.md" />
+    <None Include="_Release Files\CHANGELOG.md" />
+    <None Include="_Release Files\manifest.json" />
+    <None Include="_Release Files\README.md" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1" PrivateAssets="all" />
@@ -71,6 +71,12 @@
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Facepunch.Steamworks.Win64.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="LethalConfig">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\AinaVT-LethalConfig\LethalConfig\LethalConfig.dll</HintPath>
+    </Reference>
+    <Reference Include="LethalLevelLoader">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\IAmBatby-LethalLevelLoader\LethalLevelLoader.dll</HintPath>
+    </Reference>
     <Reference Include="OpenLib">
       <HintPath>Z:\games\modding\LC\publicDevLibrary\OpenLib\bin\Debug\OpenLib.dll</HintPath>
     </Reference>
@@ -82,10 +88,6 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="TwoRadarMaps">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\2radarmaps\TwoRadarMaps.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Unity.Collections, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.Collections.dll</HintPath>
@@ -148,8 +150,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Compat\BMX_LobbyCompat.cs" />
-    <Compile Include="Events\Subscribers.cs" />
-    <Compile Include="ConfigManager\ConfigSetup.cs" />
+    <Compile Include="Compat\LethalConfigCompat.cs" />
+    <Compile Include="PluginCore\Collections.cs" />
+    <Compile Include="EventStuff\LLLStuff.cs" />
+    <Compile Include="EventStuff\Subscribers.cs" />
+    <Compile Include="ConfigManager\Configuration.cs" />
+    <Compile Include="PluginCore\MenuStuff.cs" />
+    <Compile Include="PluginCore\MoonStuff.cs" />
     <Compile Include="PluginCore\Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -157,6 +164,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="PluginCore\LevelStuff.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -165,10 +173,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="specialnodes.txt" />
+    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <Content Include="stuff.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

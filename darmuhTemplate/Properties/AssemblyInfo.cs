@@ -1,16 +1,16 @@
 ﻿using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
-using static Template.Plugin;
+using static Constellations.Plugin;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Template")]
-[assembly: AssemblyDescription("https://github.com/darmuh/Template")]
+[assembly: AssemblyTitle("LethalConstellations")]
+[assembly: AssemblyDescription("https://github.com/darmuh/LethalConstellations")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Template")]
+[assembly: AssemblyProduct("LethalConstellations")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -1,9 +1,0 @@
-{
-  "name": "Template",
-  "version_number": "0.0.1",
-  "website_url": "https://github.com/darmuh",
-  "description": "Created as a reference point for all of my mods that utilize the same common functions. Open to the public for use/modification.",
-  "dependencies": [
-    "darmuh-OpenLib-0.1.5"
-  ]
-}

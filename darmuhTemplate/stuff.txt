@@ -1,0 +1,24 @@
+﻿Current features:
+Constellations Menu will display your custom constellation names and prices. You can have as many constellations as you want.
+Constellation names will create keywords matching their name, please dont name it anything that will replace another mod's keyword or a vanilla keyword.
+Your constellation will update on lobby load, so if your save starts on "Icebound" and that moon is in Constellation Bravo your current constellation will be set to bravo.
+Moons are locked/hidden with LLL when you are outside their set constellation.
+Moon prices can be modified or set to be left alone. Generated config grabs their price value from LLL.
+When routing to a constellation, it will set your level to the constellation's default level. So each constellation will have one moon which is basically free besides the - price to route to the specific constellation.
+Company moon can be routed to from ANY constellation, will always display on moons page (I guess lore is company will always pay for your trip back? idk lol)
+
+Planned features:
+Replace "constellations" with another word via configuration. So long as the word doesn't already exist.
+*done*
+Info command for the constellations menu and each specific constellation (maybe you can add lore for your specific constellations here?)
+*done*
+Make the constellations menu prettier with more info, maybe display the default planet alongside the price
+add confirm/deny to constellations menu maybe?
+maybe add randomized names for constellations if an already existing keyword is detected
+*maybe done*
+I may decide I don't like this name and wanna change it lol
+
+Some ideas I could maybe work on if there's demand:
+Dynamic pricing depending on which constellation you're in
+Sync client config values to whatever the host has
+Allowing for setting moons to hidden that are assigned to a constellation
