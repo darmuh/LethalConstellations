@@ -1,48 +1,109 @@
 ﻿using LethalLevelLoader;
 using OpenLib.Common;
+using Steamworks.Ugc;
 using System.Collections.Generic;
-using static Constellations.PluginCore.Collections;
+using static LethalConstellations.PluginCore.Collections;
 
-namespace Constellations.PluginCore
+namespace LethalConstellations.PluginCore
 {
     internal class LevelStuff
     {
+        internal static bool gotConstellation;
+        internal static bool cancelConfirmation;
+        internal static string constellationName;
+
+
         internal static string RouteConstellation()
         {
-            if (ConstellationsToMoons.Count < 1)
-                return "Constellation configuration failure detected!";
+            if (CantRouteConst(out string failText))
+                return failText;
 
-            if (StartOfRound.Instance.travellingToNewLevel)
-                return "Ship is currently in motion, unable to change routing at this time!\r\n\r\n";
-
-            if (!StartOfRound.Instance.inShipPhase)
-                return "Ship needs to be in orbit in order to travel to a new constellation!\r\n\r\n";
-
-            string[] screenWords = CommonStringStuff.GetWords();
-            Plugin.Spam("comparing constellation values");
-            Plugin.Spam(screenWords[0].ToLower());
-            Plugin.Spam(CurrentConstellation.ToLower());
-            if (screenWords[0].ToLower() != CurrentConstellation.ToLower())
+            string defaultLevel = GetDefaultLevel(constellationName);
+            int newLevelID = GetLevelID(defaultLevel);
+            if (newLevelID != -1)
             {
-                string defaultLevel = GetDefaultLevel(screenWords[0]);
-                int newLevelID = GetLevelID(defaultLevel);
-                if (newLevelID != -1)
-                {
-                    CurrentConstellation = screenWords[0];
-                    int getPrice = GetConstPrice(screenWords[0]);
-                    if (Plugin.instance.Terminal.groupCredits < getPrice)
-                        return $"Unable to afford to travel to Constellation - {CurrentConstellation.ToUpper()}\r\n\r\n";
-                    Plugin.Spam($"oldcreds: {Plugin.instance.Terminal.groupCredits}");
-                    Plugin.instance.Terminal.groupCredits -= getPrice;
-                    Plugin.Spam($"newCreds amount = {Plugin.instance.Terminal.groupCredits}");
-                    StartOfRound.Instance.ChangeLevelServerRpc(newLevelID, Plugin.instance.Terminal.groupCredits);
-                    return $"Travelling to Constellation - {CurrentConstellation.ToUpper()}\nYour new credits balance: ${Plugin.instance.Terminal.groupCredits}\r\n\r\n";
-                }
-                else
-                    return "ERROR: Unable to load constellation default level!\r\n\r\n";
+                CurrentConstellation = constellationName;
+                int getPrice = GetConstPrice(constellationName);
+                if (Plugin.instance.Terminal.groupCredits < getPrice)
+                    return $"Unable to afford to travel to Constellation - {CurrentConstellation.ToUpper()}\r\n\r\n";
+                Plugin.Spam($"oldcreds: {Plugin.instance.Terminal.groupCredits}");
+                Plugin.instance.Terminal.groupCredits -= getPrice;
+                Plugin.Spam($"newCreds amount = {Plugin.instance.Terminal.groupCredits}");
+                StartOfRound.Instance.ChangeLevelServerRpc(newLevelID, Plugin.instance.Terminal.groupCredits);
+                gotConstellation = false;
+                return $"Travelling to Constellation - {CurrentConstellation.ToUpper()}\nYour new credits balance: ${Plugin.instance.Terminal.groupCredits}\r\n\r\n";
             }
             else
-                return $"You are already located at this constellation...\r\n\r\n";
+                return "ERROR: Unable to load constellation default level!\r\n\r\n";
+        }
+
+        internal static string AskRouteConstellation()
+        {
+            if (CantRouteConst(out string failText))
+                return failText;
+
+            return $"Travel to {Constellation} - {constellationName.ToUpper()}?\n\n\n\n\n\n\n\n\n\n\n\nPlease CONFIRM or DENY.\n";
+
+        }
+
+        internal static string DenyRouteConstellation()
+        {
+            string item = constellationName.ToUpper();
+            ResetConstVars();
+
+            return $"Route to {Constellation} {item} has been canceled.\r\n\r\n\r\n";
+        }
+
+        internal static void ResetConstVars()
+        {
+            cancelConfirmation = true;
+            gotConstellation = false;
+            constellationName = "";
+        }
+
+        internal static bool CantRouteConst(out string failText)
+        {
+            if (ConstellationsToMoons.Count < 1)
+            {
+                ResetConstVars();
+                failText = "Constellation configuration failure detected!";
+                return true;
+            }
+
+            if (StartOfRound.Instance.travellingToNewLevel)
+            {
+                ResetConstVars();
+                failText = "Ship is currently in motion, unable to change routing at this time!\r\n\r\n";
+                return true;
+            }  
+
+            if (!StartOfRound.Instance.inShipPhase)
+            {
+                ResetConstVars();
+                failText = "Ship needs to be in orbit in order to travel to a new constellation!\r\n\r\n";
+                return true;
+            }
+            string[] screenWords = CommonStringStuff.GetWords();
+            
+            if (screenWords[0].ToLower() == CurrentConstellation.ToLower())
+            {
+                failText = $"You are already located at {Constellation} - {CurrentConstellation}...\r\n\r\n";
+                ResetConstVars();
+                return true;
+            }
+            else
+            {
+                if (!gotConstellation)
+                {
+                    constellationName = screenWords[0];
+                    Plugin.Spam($"keyword detected setting constellationName - {constellationName}");
+                    gotConstellation = true;
+                }   
+            }
+
+            failText = "";
+            return false;
+                
         }
 
         internal static int GetConstPrice(string constName)
@@ -105,7 +166,7 @@ namespace Constellations.PluginCore
                         Plugin.Spam($"{extendedLevel.NumberlessPlanetName} should be DISABLED");
                         extendedLevel.IsRouteHidden = true;
                         extendedLevel.IsRouteLocked = true;
-                        extendedLevel.LockedRouteNodeText = $"{extendedLevel.NumberlessPlanetName} is not located in this Constellation.\n\n\tType \"CONSTELLATIONS\" to see a listing of Constellations.\r\n\r\n";
+                        extendedLevel.LockedRouteNodeText = $"{extendedLevel.NumberlessPlanetName} is not located in this Constellation.\n\n\tType \"CONSTELLATIONS\" to see a listing of LethalConstellations.\r\n\r\n";
                     }
                     else
                     {

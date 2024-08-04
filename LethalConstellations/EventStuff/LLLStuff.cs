@@ -1,15 +1,14 @@
 ﻿using BepInEx.Configuration;
-using Constellations.ConfigManager;
-using Constellations.PluginCore;
+using LethalConstellations.ConfigManager;
+using LethalConstellations.PluginCore;
 using LethalLevelLoader;
 using OpenLib.Common;
 using System.Collections.Generic;
 using static OpenLib.ConfigManager.ConfigSetup;
-using static Constellations.PluginCore.Collections;
-using System.IO;
-using Constellations.Compat;
+using static LethalConstellations.PluginCore.Collections;
 
-namespace Constellations.EventStuff
+
+namespace LethalConstellations.EventStuff
 {
     internal class LLLStuff
     {
@@ -32,19 +31,19 @@ namespace Constellations.EventStuff
 
             foreach (string name in ConstellationsList)
             {
-                ConfigEntry<string> defaultMoon = MakeString(Configuration.GeneratedConfig, "Constellations", $"{name} defaultMoon", GetFirstMatch(ConstellationsToMoons, name), "default moon to route to when selecting this constellation");
+                ConfigEntry<string> defaultMoon = MakeString(Configuration.GeneratedConfig, "LethalConstellations", $"{name} defaultMoon", GetFirstMatch(ConstellationsToMoons, name), "default moon to route to when selecting this constellation");
                 DefaultMoons.Add(name, defaultMoon.Value);
 
-                ConfigEntry<int> constellationPrice = MakeClampedInt(Configuration.GeneratedConfig, "Constellations", $"{name} constellationPrice", 0, $"Set the price to route to this constellation and it's defaultMoon", 0, 9999);
+                ConfigEntry<int> constellationPrice = MakeClampedInt(Configuration.GeneratedConfig, "LethalConstellations", $"{name} constellationPrice", 0, $"Set the price to route to this constellation and it's defaultMoon", 0, 9999);
 
-                ConfigEntry<string> menuText = MakeString(Configuration.GeneratedConfig, "Constellations", $"{name} menuText", "Route to Constellation [name]\t$[price]", "text displayed for this constellation's menu item");
+                ConfigEntry<string> menuText = MakeString(Configuration.GeneratedConfig, "LethalConstellations", $"{name} menuText", "Route to Constellation [name][~t]$[price][~n]Default Moon: [defaultmoon]", "text displayed for this constellation's menu item");
                 ConstellationMenuText.Add(name, menuText.Value);
 
                 ConstellationPrices.Add(name, constellationPrice.Value);
 
                 if (Configuration.ConstellationSpecificInfoNodes.Value)
                 {
-                    ConfigEntry<string> infoText = MakeString(Configuration.GeneratedConfig, "Constellations", $"{name} infoText", $"Constellation - {name}\n\n\nThis constellation contains moons in it. Route to it and find out which!\r\n\r\n", "text that displays with the info command for this constellation");
+                    ConfigEntry<string> infoText = MakeString(Configuration.GeneratedConfig, "LethalConstellations", $"{name} infoText", $"Constellation - {name}\n\n\nThis constellation contains moons in it. Route to it and find out which!\r\n\r\n", "text that displays with the info command for this constellation");
                     ConstellationInfoNodes.Add(name, infoText.Value);
                 }
                 

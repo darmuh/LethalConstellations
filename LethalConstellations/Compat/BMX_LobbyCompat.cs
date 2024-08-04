@@ -2,7 +2,7 @@
 using System;
 using System.Reflection;
 
-namespace Constellations.Compat
+namespace LethalConstellations.Compat
 {
     internal class BMX_LobbyCompat
     {

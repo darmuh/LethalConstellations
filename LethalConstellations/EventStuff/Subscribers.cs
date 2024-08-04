@@ -1,10 +1,10 @@
 ﻿using OpenLib.Events;
-using Constellations.PluginCore;
-using Constellations.Compat;
-using Constellations.ConfigManager;
+using LethalConstellations.PluginCore;
+using LethalConstellations.Compat;
+using LethalConstellations.ConfigManager;
 using LethalLevelLoader;
 
-namespace Constellations.EventStuff
+namespace LethalConstellations.EventStuff
 {
     public class Subscribers
     {
@@ -12,22 +12,37 @@ namespace Constellations.EventStuff
         {
             EventManager.TerminalAwake.AddListener(OnTerminalAwake);
             EventManager.TerminalStart.AddListener(OnTerminalStart);
+            EventManager.TerminalLoadNewNode.AddListener(OnLoadNode);
             EventManager.StartOfRoundChangeLevel.AddListener(OnLevelChange);
             //EventManager.GameNetworkManagerStart.AddListener(OnStartup);
-            LethalLevelLoader.AssetBundleLoader.onBundlesFinishedLoading += OnStartup;
+            AssetBundleLoader.onBundlesFinishedLoading += OnStartup;
             LethalLevelLoader.Plugin.onSetupComplete += LLLStuff.LLLSetup;
-
         }
 
         public static void OnTerminalAwake(Terminal instance)
         {
             Plugin.instance.Terminal = instance;
-            Plugin.MoreLogs($"Setting Plugin.instance.Terminal"); 
+            Plugin.MoreLogs($"Setting Plugin.instance.Terminal");
+        }
+
+        public static void OnLoadNode(TerminalNode node)
+        {
+            if(node.terminalOptions != null && LevelStuff.cancelConfirmation)
+            {
+                Plugin.Spam("cancelConfirmation is true and node is in confirmation, routing to dummy node");
+                Plugin.instance.dummyNode.displayText = node.displayText;
+                Plugin.instance.Terminal.LoadNewNode(Plugin.instance.dummyNode);
+            }
+            else
+            {
+                Plugin.Spam("setting cancelConfirmation to false");
+                LevelStuff.cancelConfirmation = false;
+            }
         }
 
         public static void OnTerminalStart()
         {
-            MenuStuff.Init();
+            MenuStuff.PreInit();
         }
 
         public static void OnLevelChange()

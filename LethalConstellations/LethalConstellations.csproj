@@ -25,14 +25,15 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>_Release Files\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>false</DebugSymbols>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
@@ -72,10 +73,10 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="LethalConfig">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\AinaVT-LethalConfig\LethalConfig\LethalConfig.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\AinaVT-LethalConfig\LethalConfig\LethalConfig.dll</HintPath>
     </Reference>
     <Reference Include="LethalLevelLoader">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\IAmBatby-LethalLevelLoader\LethalLevelLoader.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\IAmBatby-LethalLevelLoader\LethalLevelLoader.dll</HintPath>
     </Reference>
     <Reference Include="OpenLib">
       <HintPath>Z:\games\modding\LC\publicDevLibrary\OpenLib\bin\Debug\OpenLib.dll</HintPath>

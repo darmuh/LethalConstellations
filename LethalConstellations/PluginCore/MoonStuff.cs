@@ -1,9 +1,9 @@
-﻿using Constellations.ConfigManager;
+﻿using LethalConstellations.ConfigManager;
 using LethalLevelLoader;
 using System.Collections.Generic;
-using static Constellations.PluginCore.Collections;
+using static LethalConstellations.PluginCore.Collections;
 
-namespace Constellations.PluginCore
+namespace LethalConstellations.PluginCore
 {
     internal class MoonStuff
     {

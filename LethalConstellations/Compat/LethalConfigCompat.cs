@@ -1,6 +1,6 @@
 ﻿using BepInEx.Configuration;
 using LethalConfig;
-namespace Constellations.Compat
+namespace LethalConstellations.Compat
 {
     internal class LethalConfigCompat
     {

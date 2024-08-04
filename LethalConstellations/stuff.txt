@@ -1,4 +1,7 @@
-﻿Current features:
+﻿icon background source - https://chandra.harvard.edu/photo/2024/25th/more.html
+
+
+Current features:
 Constellations Menu will display your custom constellation names and prices. You can have as many constellations as you want.
 Constellation names will create keywords matching their name, please dont name it anything that will replace another mod's keyword or a vanilla keyword.
 Your constellation will update on lobby load, so if your save starts on "Icebound" and that moon is in Constellation Bravo your current constellation will be set to bravo.
@@ -14,8 +17,9 @@ Info command for the constellations menu and each specific constellation (maybe 
 *done*
 Make the constellations menu prettier with more info, maybe display the default planet alongside the price
 add confirm/deny to constellations menu maybe?
+*done*
 maybe add randomized names for constellations if an already existing keyword is detected
-*maybe done*
+*maybe done, untested*
 I may decide I don't like this name and wanna change it lol
 
 Some ideas I could maybe work on if there's demand:

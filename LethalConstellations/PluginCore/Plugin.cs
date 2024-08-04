@@ -1,19 +1,17 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
-using HarmonyLib;
-using Constellations.ConfigManager;
-using Constellations.EventStuff;
-using System.Reflection;
+using LethalConstellations.ConfigManager;
+using LethalConstellations.EventStuff;
 using BepInEx.Configuration;
 using System.IO;
-using Constellations.PluginCore;
+using LethalConstellations.PluginCore;
 
 
-namespace Constellations
+namespace LethalConstellations
 {
-    [BepInPlugin("com.github.darmuh.Constellations", "LethalConstellations", (PluginInfo.PLUGIN_VERSION))]
+    [BepInPlugin("com.github.darmuh.LethalConstellations", "LethalConstellations", (PluginInfo.PLUGIN_VERSION))]
     [BepInDependency("imabatby.lethallevelloader", "1.3.8")]
-    [BepInDependency("darmuh.OpenLib", "0.1.6")]
+    [BepInDependency("darmuh.OpenLib", "0.1.7")]
 
 
     public class Plugin : BaseUnityPlugin
@@ -32,6 +30,7 @@ namespace Constellations
         public bool LobbyCompat = false;
         public bool LethalConfig = false;
         public Terminal Terminal;
+        public TerminalNode dummyNode;
 
 
         private void Awake()
@@ -40,11 +39,9 @@ namespace Constellations
             Log = base.Logger;
             Log.LogInfo((object)$"{PluginInfo.PLUGIN_NAME} is loading with version {PluginInfo.PLUGIN_VERSION}!");
             Subscribers.Subscribe();
-            Configuration.MainConfig = new ConfigFile(Path.Combine(Paths.ConfigPath, $"{Plugin.PluginInfo.PLUGIN_GUID}_MainConfig.cfg"), true);
-            Configuration.GeneratedConfig = new ConfigFile(Path.Combine(Paths.ConfigPath, $"{Plugin.PluginInfo.PLUGIN_GUID}_GeneratedConfig.cfg"), true);
+            Configuration.MainConfig = new ConfigFile(Path.Combine(Paths.ConfigPath, $"{PluginInfo.PLUGIN_NAME}_Main.cfg"), true);
+            Configuration.GeneratedConfig = new ConfigFile(Path.Combine(Paths.ConfigPath, $"{PluginInfo.PLUGIN_NAME}_Generated.cfg"), true);
             Configuration.BindConfigSettings();
-            //Collections.Constellation = Configuration.ConstellationWord.Value;
-            Collections.Constellations = Configuration.ConstellationsWord.Value;
 
 
             Log.LogInfo($"{PluginInfo.PLUGIN_NAME} load complete!");

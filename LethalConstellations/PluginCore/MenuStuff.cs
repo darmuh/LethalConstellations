@@ -1,29 +1,39 @@
-﻿using OpenLib.Common;
-using static Constellations.PluginCore.Collections;
+﻿using static LethalConstellations.PluginCore.Collections;
 using static OpenLib.Menus.MenuBuild;
 using static OpenLib.ConfigManager.ConfigSetup;
-using Constellations.ConfigManager;
+using LethalConstellations.ConfigManager;
 using System.Collections.Generic;
 using OpenLib.CoreMethods;
 using UnityEngine;
+using Steamworks.Ugc;
 
-namespace Constellations.PluginCore
+namespace LethalConstellations.PluginCore
 {
     internal class MenuStuff
     {
+        internal static bool makeMenus = false;
         //StartOfRound.Instance.randomNames //use this for autoreplacing invalid keywords
-        internal static void Init()
+        internal static void PreInit()
         {
             //update constellation category names here
+            if (FixBadConfig())
+                Plugin.Spam($"Constellation custom words updated to {Collections.Constellations}");
+
             if (FixBadNames())
                 UpdateBadNames();
 
+            Init();
+        }
+        
+        internal static void Init()
+        {
             Plugin.Spam("CreateConstellationCategories()");
             CreateConstellationCategories();
             Plugin.Spam("ConstellationsMainMenu()");
             ConstellationsMainMenu();
             Plugin.Spam("CreateConstellationCommands()");
             CreateConstellationCommands();
+            CreateDummyNode();
 
             //Plugin.Spam("setting currentLevel");
             //LevelStuff.GetCurrentConstellation(LevelManager.CurrentExtendedLevel.NumberlessPlanetName);
@@ -35,6 +45,17 @@ namespace Constellations.PluginCore
             UpdateDictionaryKey(ref ConstellationPrices, CNameFix);
             UpdateDictionaryKey(ref DefaultMoons, CNameFix);
             UpdateDictionaryKey(ref ConstellationMenuText, CNameFix);
+        }
+
+        internal static bool FixBadConfig()
+        {
+            if (DynamicBools.TryGetKeyword(Collections.Constellations))
+            {
+                Collections.Constellations = GetCleanKeyWord();
+                Constellation = Collections.Constellations;
+                return true;
+            }
+            return false;
         }
 
         internal static bool FixBadNames()
@@ -97,8 +118,9 @@ namespace Constellations.PluginCore
                 if (catMoons < 1)
                     continue;
                 string menuText = GetConstText(item);
+                string defaultMoon = LevelStuff.GetDefaultLevel(item);
                 int price = LevelStuff.GetConstPrice(item);
-                menuText = menuText.Replace("[name]", item).Replace("[price]", $"{price}");
+                menuText = menuText.Replace("[~t]", "\t").Replace("[~n]","\n").Replace("[name]", item).Replace("[price]", $"{price}").Replace("[defaultmoon]", $"{defaultMoon}");
 
 
                 ConstellationCats.Add(item, menuText);
@@ -143,9 +165,15 @@ namespace Constellations.PluginCore
             Plugin.Spam($"{ConstellationCats.Count}");
             string menuText = AssembleMainMenuText($"========== {Collections.Constellations} Routing Matrix ==========\r\n", ConstellationCats);
             Plugin.Spam(menuText);
-            AddingThings.AddBasicCommand("Constellations_Menu", Collections.Constellations, menuText, false, true, "other", $"\n{Configuration.ConstellationsOtherText.Value}");
+            string otherText = Configuration.ConstellationsOtherText.Value.Replace("[keyword]", $"{Collections.Constellations}");
+            AddingThings.AddBasicCommand("Constellations_Menu", Collections.Constellations, menuText, false, true, "other", $"\n{otherText}");
             AddingThings.AddBasicCommand("constellations_info", $"info {Collections.Constellations}", Configuration.ConstellationsInfoText.Value, false, true);
 
+        }
+
+        internal static void CreateDummyNode()
+        {
+            Plugin.instance.dummyNode = AddingThings.CreateDummyNode("constellations_dummy", true, "");
         }
 
         internal static void CreateConstellationCommands()
@@ -160,9 +188,19 @@ namespace Constellations.PluginCore
                 if (catMoons < 1)
                     continue;
 
-                TerminalNode newRouteNode = AddingThings.AddNodeManual($"{item}", $"{item.ToLower()}", LevelStuff.RouteConstellation, true, 0, defaultListing, 0, null, null, "", "", false, 1, "", true);
+                if (Configuration.RequireConfirmation.Value)
+                {
+                    TerminalNode newRouteNode = AddingThings.AddNodeManual($"{item}", $"{item.ToLower()}", LevelStuff.AskRouteConstellation, true, 1, defaultListing, 0, LevelStuff.RouteConstellation, LevelStuff.DenyRouteConstellation, "", "", false, 1, "", true);
                     //ConstellationNodes.Add(newRouteNode);
                     Plugin.Spam($"Constellation command for {item} added");
+                }
+                else
+                {
+                    TerminalNode newRouteNode = AddingThings.AddNodeManual($"{item}", $"{item.ToLower()}", LevelStuff.RouteConstellation, true, 0, defaultListing, 0, null, null, "", "", false, 1, "", true);
+                    //ConstellationNodes.Add(newRouteNode);
+                    Plugin.Spam($"Constellation command for {item} added");
+                }
+                
             }
 
             if (Configuration.ConstellationSpecificInfoNodes.Value && ConstellationInfoNodes.Count > 0)
