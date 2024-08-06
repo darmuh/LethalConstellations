@@ -1,11 +1,10 @@
 ﻿using static LethalConstellations.PluginCore.Collections;
-using static OpenLib.Menus.MenuBuild;
 using static OpenLib.ConfigManager.ConfigSetup;
 using LethalConstellations.ConfigManager;
 using System.Collections.Generic;
 using OpenLib.CoreMethods;
 using UnityEngine;
-using Steamworks.Ugc;
+using OpenLib.Common;
 
 namespace LethalConstellations.PluginCore
 {
@@ -17,7 +16,7 @@ namespace LethalConstellations.PluginCore
         {
             //update constellation category names here
             if (FixBadConfig())
-                Plugin.Spam($"Constellation custom words updated to {Collections.Constellations}");
+                Plugin.Spam($"ConstellationWord custom words updated to {Collections.ConstellationsWord}");
 
             if (FixBadNames())
                 UpdateBadNames();
@@ -35,24 +34,21 @@ namespace LethalConstellations.PluginCore
             CreateConstellationCommands();
             CreateDummyNode();
 
-            //Plugin.Spam("setting currentLevel");
-            //LevelStuff.GetCurrentConstellation(LevelManager.CurrentExtendedLevel.NumberlessPlanetName);
         }
 
         internal static void UpdateBadNames()
         {
-            Plugin.Spam("Updating dictionaries with corrected Constellation Names");
-            UpdateDictionaryKey(ref ConstellationPrices, CNameFix);
-            UpdateDictionaryKey(ref DefaultMoons, CNameFix);
-            UpdateDictionaryKey(ref ConstellationMenuText, CNameFix);
+            Plugin.Spam("Updating dictionaries with corrected ConstellationWord Names");
+            ClassMapper.UpdateCNames(ConstellationStuff, CNameFix);
+
         }
 
         internal static bool FixBadConfig()
         {
-            if (DynamicBools.TryGetKeyword(Collections.Constellations))
+            if (DynamicBools.TryGetKeyword(ConstellationsWord))
             {
-                Collections.Constellations = GetCleanKeyWord();
-                Constellation = Collections.Constellations;
+                ConstellationsWord = GetCleanKeyWord();
+                ConstellationWord = ConstellationsWord;
                 return true;
             }
             return false;
@@ -111,64 +107,60 @@ namespace LethalConstellations.PluginCore
         {
             ConstellationCats.Clear();
             //Dictionary<string, string> ConstellationCategories = [];
+            if (ConstellationStuff.Count < 1)
+                return;
 
-            foreach(string item in ConstellationsList)
+            foreach(ClassMapper item in ConstellationStuff)
             {
-                int catMoons = GetMoonCount(ConstellationsToMoons, item);
+                int catMoons = item.constelMoons.Count;
                 if (catMoons < 1)
                     continue;
-                string menuText = GetConstText(item);
-                string defaultMoon = LevelStuff.GetDefaultLevel(item);
-                int price = LevelStuff.GetConstPrice(item);
-                menuText = menuText.Replace("[~t]", "\t").Replace("[~n]","\n").Replace("[name]", item).Replace("[price]", $"{price}").Replace("[defaultmoon]", $"{defaultMoon}");
+                string menuText = item.menuText;
+                string defaultMoon = item.defaultMoon;
+                int price = item.constelPrice;
 
+                menuText = menuText.Replace("[~t]", "\t").Replace("[~n]","\n").Replace("[name]", item.consName).Replace("[price]", $"{price}").Replace("[defaultmoon]", $"{defaultMoon}");
 
-                ConstellationCats.Add(item, menuText);
+                if (Configuration.HideUnaffordableConstellations.Value && price > Plugin.instance.Terminal.groupCredits)
+                    continue;
+
+                if(!item.isHidden)
+                    ConstellationCats.Add(item.consName, menuText);
             }
-
-            if (ConstellationCats.Count == 0)
-            {
-                Plugin.WARNING($"Failed to get constellations from config item: {Configuration.ConstellationList.Value}");
-            }
-        }
-
-        internal static string GetConstText(string query)
-        {
-            foreach(KeyValuePair<string,string> pair in ConstellationMenuText)
-            {
-                if(pair.Key.ToLower() == query.ToLower())
-                {
-                    return pair.Value;
-                }
-            }
-
-            return "GetConstText FAILED";
-        }
-
-        internal static int GetMoonCount(Dictionary<string, string> listing, string query)
-        {
-            int count = 0;
-
-            foreach (KeyValuePair<string, string> item in listing)
-            {
-                if (listing.ContainsValue(query))
-                {
-                    count++;
-                }
-            }
-
-            return count;
         }
 
         internal static void ConstellationsMainMenu()
         {
             Plugin.Spam($"{ConstellationCats.Count}");
-            string menuText = AssembleMainMenuText($"========== {Collections.Constellations} Routing Matrix ==========\r\n", ConstellationCats);
-            Plugin.Spam(menuText);
-            string otherText = Configuration.ConstellationsOtherText.Value.Replace("[keyword]", $"{Collections.Constellations}");
-            AddingThings.AddBasicCommand("Constellations_Menu", Collections.Constellations, menuText, false, true, "other", $"\n{otherText}");
-            AddingThings.AddBasicCommand("constellations_info", $"info {Collections.Constellations}", Configuration.ConstellationsInfoText.Value, false, true);
+            
+            ConstellationsNode = AddingThings.AddNodeManual("Constellations_Menu", ConstellationsWord, MainMenu.ReturnMainMenu, true, 0, defaultListing);
 
+            if(Configuration.ConstellationsShortcuts.Value.Length > 0)
+            {
+                List<string> shortcuts = CommonStringStuff.GetKeywordsPerConfigItem(Configuration.ConstellationsShortcuts.Value, ',');
+                foreach(string shortcut in shortcuts)
+                {
+                    AddingThings.AddKeywordToExistingNode(shortcut, ConstellationsNode);
+                    Plugin.Spam($"{shortcut} added to ConstellationsNode");
+                } 
+            }
+
+            AddHintsToNodes();
+            AddingThings.AddBasicCommand("constellations_info", $"info {ConstellationsWord}", Configuration.ConstellationsInfoText.Value, false, true);
+
+        }
+
+        internal static void AddHintsToNodes()
+        {
+            string hintText = Configuration.ConstellationsHintText.Value.Replace("[keyword]", $"{ConstellationsWord.ToUpper()}");
+            TerminalNode helpNode = Plugin.instance.Terminal.terminalNodes.specialNodes[13];
+            TerminalNode otherNode = LogicHandling.GetFromAllNodes("OtherCommands");
+
+            if (Configuration.AddHintTo.Value == "both" || Configuration.AddHintTo.Value == "help")
+                AddingThings.AddToHelpCommand($"{hintText}");
+
+            if (Configuration.AddHintTo.Value == "both" || Configuration.AddHintTo.Value == "other")
+                AddingThings.AddToExistingNodeText($"\n{hintText}", ref otherNode);
         }
 
         internal static void CreateDummyNode()
@@ -178,39 +170,51 @@ namespace LethalConstellations.PluginCore
 
         internal static void CreateConstellationCommands()
         {
-            if (ConstellationsToMoons.Count < 1)
+            if (ConstellationStuff.Count < 1)
                 return;
 
 
-            foreach (string item in ConstellationsList)
+            foreach (ClassMapper item in ConstellationStuff)
             {
-                int catMoons = GetMoonCount(ConstellationsToMoons, item);
-                if (catMoons < 1)
+                if (item.constelMoons.Count < 1)
                     continue;
 
                 if (Configuration.RequireConfirmation.Value)
                 {
-                    TerminalNode newRouteNode = AddingThings.AddNodeManual($"{item}", $"{item.ToLower()}", LevelStuff.AskRouteConstellation, true, 1, defaultListing, 0, LevelStuff.RouteConstellation, LevelStuff.DenyRouteConstellation, "", "", false, 1, "", true);
-                    //ConstellationNodes.Add(newRouteNode);
-                    Plugin.Spam($"Constellation command for {item} added");
+                    TerminalNode newRouteNode = AddingThings.AddNodeManual($"{item.consName}", $"{item.consName.ToLower()}", LevelStuff.AskRouteConstellation, true, 1, defaultListing, 0, LevelStuff.RouteConstellation, LevelStuff.DenyRouteConstellation, "", "", false, 1, "", true);
+                    
+                    AddShortcuts(item, newRouteNode);
+                    Plugin.Spam($"ConstellationWord command for {item.consName} added");
                 }
                 else
                 {
-                    TerminalNode newRouteNode = AddingThings.AddNodeManual($"{item}", $"{item.ToLower()}", LevelStuff.RouteConstellation, true, 0, defaultListing, 0, null, null, "", "", false, 1, "", true);
-                    //ConstellationNodes.Add(newRouteNode);
-                    Plugin.Spam($"Constellation command for {item} added");
+                    TerminalNode newRouteNode = AddingThings.AddNodeManual($"{item.consName}", $"{item.consName.ToLower()}", LevelStuff.RouteConstellation, true, 0, defaultListing, 0, null, null, "", "", false, 1, "", true);
+
+                    AddShortcuts(item, newRouteNode);
+                    Plugin.Spam($"ConstellationWord command for {item.consName} added");
                 }
                 
             }
 
-            if (Configuration.ConstellationSpecificInfoNodes.Value && ConstellationInfoNodes.Count > 0)
+            if (Configuration.ConstellationSpecificInfoNodes.Value && ConstellationStuff.Count > 0)
             {
-                foreach(KeyValuePair<string,string> constellation in ConstellationInfoNodes)
+                foreach(ClassMapper item in ConstellationStuff)
                 {
-                    Plugin.Spam($"Adding info command for {constellation.Key}");
-                    AddingThings.AddBasicCommand($"{constellation.Key}_info", $"info {constellation.Key}", constellation.Value, false, true);
+                    Plugin.Spam($"Adding info command for {item.consName}");
+                    AddingThings.AddBasicCommand($"{item.consName}_info", $"info {item.consName}", item.infoText, false, true);
                 }
+            }
+        }
 
+        internal static void AddShortcuts(ClassMapper item, TerminalNode newRouteNode)
+        {
+            if (item.shortcutList.Length > 0)
+            {
+                List<string> shortcuts = CommonStringStuff.GetKeywordsPerConfigItem(item.shortcutList);
+                foreach (string shortcut in shortcuts)
+                {
+                    AddingThings.AddKeywordToExistingNode(shortcut, newRouteNode);
+                }
             }
         }
 

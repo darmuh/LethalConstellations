@@ -26,3 +26,20 @@ Some ideas I could maybe work on if there's demand:
 Dynamic pricing depending on which constellation you're in
 Sync client config values to whatever the host has
 Allowing for setting moons to hidden that are assigned to a constellation
+
+
+---------------------------------------------
+
+requested features for next potential update:
+Add constellations keyword info to help menu the same way it is added to other menu (maybe add a configuration for one or the other or both?)
+-done
+Add support for multi-word constellation keywords (will need to rewrite some word matching for the command)
+-done
+Add support for a hidden constellation, which will contain hidden moons (ez config option)
+-done
+Add public stuff for other mods to access Current Constellation stuff
+-notdone
+Add company building (gordion) to default ignore list
+-done, sorta (handled differently)
+Add support for hiding constellations you cant afford (to avoid spoilers)
+-done

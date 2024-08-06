@@ -1,6 +1,6 @@
 {
   "name": "Lethal_Constellations",
-  "version_number": "0.1.0",
+  "version_number": "0.1.5",
   "website_url": "https://github.com/darmuh/LethalConstellations",
   "description": "Dynamically change your moons list depending on which constellation your current moon is located in. Constellations are highly configurable.",
   "dependencies": [

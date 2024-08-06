@@ -3,7 +3,7 @@
 ### Separate your moons list by constellations. 
 - This mod will dynamically change your moons list depending on a configurable constellations listing.
 
-**NOTE:** This mod is still early in development. Please report any issues you find as you are essentially a beta tester.
+**NOTE:** This mod is still in early development. Please report any issues you find as you are essentially a beta tester.
 
 ### Current Features:
 - If a moon is not inside the current constellation it will be hidden from the moons page and locked (using LLL)
@@ -21,7 +21,9 @@
 - You can set routing to a specific constellation to cost credits or allow for your constellations to be free.
 - Routing to a new constellation will take you to that constellation's default moon.
 	- This essentially makes the cost of routing to this moon however much it costs to route to your constellation.
-- The company moon can be routed to from any constellation and will always be available on the Moons page.
+- Set which constellations the company can be routed to in the constellations config
+- Hide special constellations from the menu or if you cant afford it (with configuration options)
+- Set shorts for the constellation menu and specific constellations
 - This mod does not do any patching, all game patching is done by OpenLib & LethalLevelLoader.
 
 ### If you have any ideas on how to make this mod better please feel free to reach out!

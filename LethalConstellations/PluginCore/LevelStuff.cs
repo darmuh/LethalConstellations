@@ -1,6 +1,4 @@
 ﻿using LethalLevelLoader;
-using OpenLib.Common;
-using Steamworks.Ugc;
 using System.Collections.Generic;
 using static LethalConstellations.PluginCore.Collections;
 
@@ -8,8 +6,8 @@ namespace LethalConstellations.PluginCore
 {
     internal class LevelStuff
     {
-        internal static bool gotConstellation;
-        internal static bool cancelConfirmation;
+        internal static bool gotConstellation = false;
+        internal static bool cancelConfirmation = false;
         internal static string constellationName;
 
 
@@ -25,13 +23,13 @@ namespace LethalConstellations.PluginCore
                 CurrentConstellation = constellationName;
                 int getPrice = GetConstPrice(constellationName);
                 if (Plugin.instance.Terminal.groupCredits < getPrice)
-                    return $"Unable to afford to travel to Constellation - {CurrentConstellation.ToUpper()}\r\n\r\n";
+                    return $"Unable to afford to travel to {ConstellationWord} - {CurrentConstellation.ToUpper()}\r\n\r\n";
                 Plugin.Spam($"oldcreds: {Plugin.instance.Terminal.groupCredits}");
                 Plugin.instance.Terminal.groupCredits -= getPrice;
                 Plugin.Spam($"newCreds amount = {Plugin.instance.Terminal.groupCredits}");
                 StartOfRound.Instance.ChangeLevelServerRpc(newLevelID, Plugin.instance.Terminal.groupCredits);
                 gotConstellation = false;
-                return $"Travelling to Constellation - {CurrentConstellation.ToUpper()}\nYour new credits balance: ${Plugin.instance.Terminal.groupCredits}\r\n\r\n";
+                return $"Travelling to {ConstellationWord} - {CurrentConstellation.ToUpper()}\nYour new credits balance: ${Plugin.instance.Terminal.groupCredits}\r\n\r\n";
             }
             else
                 return "ERROR: Unable to load constellation default level!\r\n\r\n";
@@ -42,7 +40,7 @@ namespace LethalConstellations.PluginCore
             if (CantRouteConst(out string failText))
                 return failText;
 
-            return $"Travel to {Constellation} - {constellationName.ToUpper()}?\n\n\n\n\n\n\n\n\n\n\n\nPlease CONFIRM or DENY.\n";
+            return $"Travel to {ConstellationWord} - {constellationName.ToUpper()}?\n\n\n\n\n\n\n\n\n\n\n\nPlease CONFIRM or DENY.\n";
 
         }
 
@@ -51,7 +49,7 @@ namespace LethalConstellations.PluginCore
             string item = constellationName.ToUpper();
             ResetConstVars();
 
-            return $"Route to {Constellation} {item} has been canceled.\r\n\r\n\r\n";
+            return $"Route to {ConstellationWord} {item} has been canceled.\r\n\r\n\r\n";
         }
 
         internal static void ResetConstVars()
@@ -63,10 +61,12 @@ namespace LethalConstellations.PluginCore
 
         internal static bool CantRouteConst(out string failText)
         {
-            if (ConstellationsToMoons.Count < 1)
+            Plugin.Spam($"CantRouteConst");
+
+            if (ConstellationStuff.Count < 1)
             {
                 ResetConstVars();
-                failText = "Constellation configuration failure detected!";
+                failText = "Configuration failure detected!";
                 return true;
             }
 
@@ -80,25 +80,35 @@ namespace LethalConstellations.PluginCore
             if (!StartOfRound.Instance.inShipPhase)
             {
                 ResetConstVars();
-                failText = "Ship needs to be in orbit in order to travel to a new constellation!\r\n\r\n";
+                failText = $"Ship needs to be in orbit in order to travel to new {ConstellationWord}!\r\n\r\n";
                 return true;
             }
-            string[] screenWords = CommonStringStuff.GetWords();
-            
-            if (screenWords[0].ToLower() == CurrentConstellation.ToLower())
+
+            if (Plugin.instance.Terminal == null)
+                Plugin.ERROR("terminal instance is null?!?");
+
+            Plugin.Spam("Getting screen text");
+            string screen = Plugin.instance.Terminal.screenText.text.Substring(Plugin.instance.Terminal.screenText.text.Length - Plugin.instance.Terminal.textAdded);
+            Plugin.Spam(screen);
+            Plugin.Spam($"{ConstellationStuff.Count}");
+            if(ClassMapper.TryGetConstellation(ConstellationStuff, screen, out ClassMapper outConst))
             {
-                failText = $"You are already located at {Constellation} - {CurrentConstellation}...\r\n\r\n";
-                ResetConstVars();
-                return true;
-            }
-            else
-            {
-                if (!gotConstellation)
+                Plugin.Spam($"Current Constellation: {CurrentConstellation}");
+                if(CurrentConstellation == outConst.consName)
                 {
-                    constellationName = screenWords[0];
-                    Plugin.Spam($"keyword detected setting constellationName - {constellationName}");
-                    gotConstellation = true;
-                }   
+                    failText = $"You are already located at {ConstellationWord} - {CurrentConstellation}...\r\n\r\n";
+                    ResetConstVars();
+                    return true;
+                }
+                else
+                {
+                    if (!gotConstellation)
+                    {
+                        constellationName = outConst.consName;
+                        Plugin.Spam($"keyword detected setting constellationName - {constellationName}");
+                        gotConstellation = true;
+                    }
+                }
             }
 
             failText = "";
@@ -108,14 +118,14 @@ namespace LethalConstellations.PluginCore
 
         internal static int GetConstPrice(string constName)
         {
-            if (ConstellationPrices.Count < 1)
+            if (ConstellationStuff.Count < 1)
                 return 0;
 
-            foreach (KeyValuePair<string, int> item in ConstellationPrices)
+            foreach (ClassMapper item in ConstellationStuff)
             {
-                if (item.Key.ToLower() == constName.ToLower())
+                if (item.consName.ToLower() == constName.ToLower())
                 {
-                    return item.Value;
+                    return item.constelPrice;
                 }
             }
 
@@ -124,14 +134,14 @@ namespace LethalConstellations.PluginCore
 
         internal static string GetDefaultLevel(string constellation)
         {
-            if (DefaultMoons.Count < 1)
+            if (ConstellationStuff.Count < 1)
                 return "";
 
-            foreach (KeyValuePair<string, string> item in DefaultMoons)
+            foreach (ClassMapper item in ConstellationStuff)
             {
-                Plugin.Spam($"checking {item.Key} to {constellation}");
-                if (item.Key.ToLower() == constellation.ToLower())
-                    return item.Value;
+                Plugin.Spam($"checking {item.consName} to {constellation}");
+                if (item.consName.ToLower() == constellation.ToLower())
+                    return item.defaultMoon;
             }
 
             return "";
@@ -151,6 +161,26 @@ namespace LethalConstellations.PluginCore
             return -1;
         }
 
+        internal static void UpdateLevelList(List<string> moonNames, bool enableMoons)
+        {
+            if (!enableMoons)
+            {
+                Plugin.Spam($"Disabling all moons in: {constellationName}");
+                foreach(string name in moonNames)
+                {
+                    AdjustExtendedLevel(name, constellationName, false);
+                }
+            }
+            else
+            {
+                Plugin.Spam($"Enabling all moons in: {constellationName}");
+                foreach (string name in moonNames)
+                {
+                    AdjustExtendedLevel(name, constellationName, true);
+                }
+            }
+        }
+
         internal static void AdjustExtendedLevel(string levelName, string constellationName, bool thisConstellation)
         {
             List<ExtendedLevel> allLevels = PatchedContent.VanillaExtendedLevels;
@@ -159,14 +189,14 @@ namespace LethalConstellations.PluginCore
             foreach (ExtendedLevel extendedLevel in PatchedContent.ExtendedLevels)
             {
                 Plugin.Spam($"checking {extendedLevel.NumberlessPlanetName} vs {levelName}");
-                if (extendedLevel.NumberlessPlanetName == levelName)
+                if (extendedLevel.NumberlessPlanetName.ToLower() == levelName.ToLower())
                 {
                     if (!thisConstellation)
                     {
                         Plugin.Spam($"{extendedLevel.NumberlessPlanetName} should be DISABLED");
                         extendedLevel.IsRouteHidden = true;
                         extendedLevel.IsRouteLocked = true;
-                        extendedLevel.LockedRouteNodeText = $"{extendedLevel.NumberlessPlanetName} is not located in this Constellation.\n\n\tType \"CONSTELLATIONS\" to see a listing of LethalConstellations.\r\n\r\n";
+                        extendedLevel.LockedRouteNodeText = $"{extendedLevel.NumberlessPlanetName} is not located in this {ConstellationWord}.\n\n\tType \"{ConstellationsWord}\" to see a listing of LethalConstellations.\r\n\r\n";
                     }
                     else
                     {
@@ -179,7 +209,7 @@ namespace LethalConstellations.PluginCore
             }
         }
 
-        internal static void AdjustToNewConstellation(string constellationName)
+        internal static void AdjustToNewConstellation(string levelName, string constellationName)
         {
             if (constellationName.Length == 0)
             {
@@ -187,21 +217,19 @@ namespace LethalConstellations.PluginCore
                 return;
             }
 
-            Plugin.Spam($"AdjustToNewConstellation({constellationName})");
-            //ConstellationsToMoons.Add(extendedLevel.NumberlessPlanetName, levelToConstellation.Value);
-            foreach (KeyValuePair<string, string> item in ConstellationsToMoons)
+            if(levelName.ToLower() == CompanyMoon.ToLower() && ClassMapper.TryGetConstellation(ConstellationStuff, constellationName, out ClassMapper conClass))
             {
-                if (item.Value.ToLower() != constellationName.ToLower())
-                {
-                    Plugin.Spam($"{item.Key} is not in constellation: {constellationName}");
-                    AdjustExtendedLevel(item.Key, constellationName, false);
-                }
+                AdjustExtendedLevel(levelName, constellationName, conClass.canRouteCompany);
+                return;
+            }
+
+            //ConstellationsToMoons.Add(extendedLevel.NumberlessPlanetName, levelToConstellation.Value);
+            foreach (ClassMapper item in ConstellationStuff)
+            {
+                if(item.consName == constellationName)
+                    UpdateLevelList(item.constelMoons, true);
                 else
-                {
-                    Plugin.Spam($"{item.Key} IS in constellation: {constellationName}");
-                    AdjustExtendedLevel(item.Key, constellationName, true);
-                }
-                    
+                    UpdateLevelList(item.constelMoons, false);
             }
         }
 
@@ -214,14 +242,18 @@ namespace LethalConstellations.PluginCore
                 return;
             }
 
+            if (levelName.ToLower() == CompanyMoon.ToLower())
+                return;
+
             //ConstellationsToMoons.Add(extendedLevel.NumberlessPlanetName, levelToConstellation.Value);
-            foreach (KeyValuePair<string, string> item in ConstellationsToMoons)
+            foreach (ClassMapper item in ConstellationStuff)
             {
-                if (item.Key.ToLower() == levelName.ToLower())
+                List<string> lowerCaseMoons = item.constelMoons.ConvertAll(x => x.ToLower());
+                if (lowerCaseMoons.Contains(levelName.ToLower()))
                 {
-                    CurrentConstellation = item.Value;
+                    CurrentConstellation = item.consName;
                     Plugin.Spam($"CurrentConstellation set to {CurrentConstellation}");
-                    AdjustToNewConstellation(CurrentConstellation);
+                    AdjustToNewConstellation(levelName, CurrentConstellation);
                 }
 
             }

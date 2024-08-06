@@ -11,7 +11,7 @@ namespace LethalConstellations
 {
     [BepInPlugin("com.github.darmuh.LethalConstellations", "LethalConstellations", (PluginInfo.PLUGIN_VERSION))]
     [BepInDependency("imabatby.lethallevelloader", "1.3.8")]
-    [BepInDependency("darmuh.OpenLib", "0.1.7")]
+    [BepInDependency("darmuh.OpenLib", "0.1.8")]
 
 
     public class Plugin : BaseUnityPlugin
@@ -21,7 +21,7 @@ namespace LethalConstellations
         {
             public const string PLUGIN_GUID = "com.github.darmuh.LethalConstellations";
             public const string PLUGIN_NAME = "LethalConstellations";
-            public const string PLUGIN_VERSION = "0.1.0";
+            public const string PLUGIN_VERSION = "0.1.5";
         }
         
         internal static ManualLogSource Log;
@@ -39,7 +39,6 @@ namespace LethalConstellations
             Log = base.Logger;
             Log.LogInfo((object)$"{PluginInfo.PLUGIN_NAME} is loading with version {PluginInfo.PLUGIN_VERSION}!");
             Subscribers.Subscribe();
-            Configuration.MainConfig = new ConfigFile(Path.Combine(Paths.ConfigPath, $"{PluginInfo.PLUGIN_NAME}_Main.cfg"), true);
             Configuration.GeneratedConfig = new ConfigFile(Path.Combine(Paths.ConfigPath, $"{PluginInfo.PLUGIN_NAME}_Generated.cfg"), true);
             Configuration.BindConfigSettings();
 

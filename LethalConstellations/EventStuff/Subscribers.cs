@@ -62,12 +62,6 @@ namespace LethalConstellations.EventStuff
             if (OpenLib.Common.StartGame.SoftCompatibility("ainavt.lc.lethalconfig", ref Plugin.instance.LethalConfig))
                 Plugin.Log.LogInfo("LethalConfig Detected!");
 
-            if (Plugin.instance.LethalConfig)
-            {
-                LethalConfigCompat.QueueConfig(Configuration.GeneratedConfig);
-                LethalConfigCompat.QueueConfig(Configuration.MainConfig);
-            }
-
         }
     }
 }
