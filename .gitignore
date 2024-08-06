@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/LethalConstellations/_Release Files/LethalConstellations.dll
+/LethalConstellations/_Release Files/OpenLib.dll

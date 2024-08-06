@@ -40,6 +40,7 @@ namespace LethalConstellations.EventStuff
                 ConstellationMenuText.Add(name, menuText.Value);
 
                 ConstellationPrices.Add(name, constellationPrice.Value);
+                ConfigEntry<bool> canGoCompany = MakeBool(Configuration.GeneratedConfig, "Constellations", $"{name} canRouteCompany", true, "Enable this to allow this constellation to route to the company moon");
 
                 if (Configuration.ConstellationSpecificInfoNodes.Value)
                 {
