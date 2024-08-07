@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.1.6]
+ - Publicized some things for future compatibility with LethalMoonUnlocks by explodingMods (xCore)
+ - fixed typo in a method name
+ - fixed typo in manifest.json referencing incorrect OpenLib version number
+
 ## [0.1.5]
  - Added new config item [HideUnaffordableConstellations] to hide constellations you cannot afford
  - Added new config item [AddHintTo] to determine which base menus your hinttext would be added to

@@ -3,16 +3,16 @@ using System.Collections.Generic;
 
 namespace LethalConstellations.PluginCore
 {
-    internal class ClassMapper
+    public class ClassMapper
     {
-        internal string consName;
-        internal List<string> constelMoons;
-        internal int constelPrice;
-        internal string defaultMoon;
+        public string consName;
+        public List<string> constelMoons;
+        public int constelPrice;
+        public string defaultMoon;
         internal string menuText;
         internal string infoText;
-        internal bool isHidden;
-        internal bool canRouteCompany;
+        public bool isHidden;
+        public bool canRouteCompany;
         internal string shortcutList;
 
         internal ClassMapper(string cName, int cPrice = 0, string defMoon = "", string menuText = "")
@@ -29,14 +29,14 @@ namespace LethalConstellations.PluginCore
                 return;
                 foreach (KeyValuePair<string, string> fixer in fixedNames)
                 {
-                    if(CheckForAndUpadteCName(constellations, fixer.Key, fixer.Value))
+                    if(CheckForAndUpdateCName(constellations, fixer.Key, fixer.Value))
                     {
                         Plugin.Spam($"CheckForAndUpadteCName success");
                     }
                 }
         }
 
-        internal static bool TryGetConstellation(List<ClassMapper> constellations, string query, out ClassMapper outConst)
+        public static bool TryGetConstellation(List<ClassMapper> constellations, string query, out ClassMapper outConst)
         {
             Plugin.Spam("TryGetConstellation:");
             Plugin.Spam(query);
@@ -62,7 +62,7 @@ namespace LethalConstellations.PluginCore
             return false;
         }
 
-        internal static bool CheckForAndUpadteCName(List<ClassMapper> constellations, string query, string newValue)
+        internal static bool CheckForAndUpdateCName(List<ClassMapper> constellations, string query, string newValue)
         {
             if (constellations.Count < 1 || query.Length < 1)
             {

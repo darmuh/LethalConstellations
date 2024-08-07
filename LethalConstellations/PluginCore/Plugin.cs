@@ -21,7 +21,7 @@ namespace LethalConstellations
         {
             public const string PLUGIN_GUID = "com.github.darmuh.LethalConstellations";
             public const string PLUGIN_NAME = "LethalConstellations";
-            public const string PLUGIN_VERSION = "0.1.5";
+            public const string PLUGIN_VERSION = "0.1.6";
         }
         
         internal static ManualLogSource Log;

@@ -6,7 +6,7 @@ namespace LethalConstellations.PluginCore
     {
         internal static List<string> ConstellationsList = [];
 
-        internal static List<ClassMapper> ConstellationStuff = [];
+        public static List<ClassMapper> ConstellationStuff = []; //public for access from other mods
 
         internal static Dictionary<string,string> ConstellationCats = [];
         //ConstellationCats.Add(item, $"Route to ConstellationWord {item}\t${price}");
