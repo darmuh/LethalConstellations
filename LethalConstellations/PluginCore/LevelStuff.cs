@@ -163,6 +163,7 @@ namespace LethalConstellations.PluginCore
 
         internal static void UpdateLevelList(List<string> moonNames, bool enableMoons)
         {
+
             if (!enableMoons)
             {
                 Plugin.Spam($"Disabling all moons in: {constellationName}");
@@ -183,6 +184,9 @@ namespace LethalConstellations.PluginCore
 
         internal static void AdjustExtendedLevel(string levelName, string constellationName, bool thisConstellation)
         {
+            if (Plugin.instance.LethalMoonUnlocks)
+                return;
+
             List<ExtendedLevel> allLevels = PatchedContent.VanillaExtendedLevels;
             allLevels.AddRange(PatchedContent.CustomExtendedLevels);
 

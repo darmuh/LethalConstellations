@@ -59,8 +59,14 @@ namespace LethalConstellations.EventStuff
             SetDefaultMoon();
             Plugin.Spam($"ConfigCount: {Configuration.GeneratedConfig.Count}");
             Configuration.GeneratedConfig.Save();
-            LethalConfigCompat.QueueConfig(Configuration.GeneratedConfig);
+            LethalConfigStuff();
             MoonStuff.ModifyMoonPrices();
+        }
+
+        internal static void LethalConfigStuff()
+        {
+            if(Plugin.instance.LethalConfig)
+                LethalConfigCompat.QueueConfig(Configuration.GeneratedConfig);
         }
 
         internal static string GetDefaultCName(List<string> constList, int index)

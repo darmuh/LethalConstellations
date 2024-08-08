@@ -61,6 +61,8 @@ namespace LethalConstellations.EventStuff
             }
             if (OpenLib.Common.StartGame.SoftCompatibility("ainavt.lc.lethalconfig", ref Plugin.instance.LethalConfig))
                 Plugin.Log.LogInfo("LethalConfig Detected!");
+            if (OpenLib.Common.StartGame.SoftCompatibility("com.xmods.lethalmoonunlocks", ref Plugin.instance.LethalMoonUnlocks))
+                Plugin.Log.LogInfo("LethalMoonUnlocks Detected! Disabling moon unlock/hiding from this mod.");
 
         }
     }

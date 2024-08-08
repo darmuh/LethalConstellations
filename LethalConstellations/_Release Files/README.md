@@ -25,6 +25,7 @@
 - Hide special constellations from the menu or if you cant afford it (with configuration options)
 - Set shorts for the constellation menu and specific constellations
 - This mod does not do any patching, all game patching is done by OpenLib & LethalLevelLoader.
+- Compatibility with [LethalMoonUnlocks](https://thunderstore.io/c/lethal-company/p/explodingMods/LethalMoonUnlocks/)
 
 ### If you have any ideas on how to make this mod better please feel free to reach out!
 

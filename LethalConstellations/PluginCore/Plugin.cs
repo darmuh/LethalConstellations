@@ -21,7 +21,7 @@ namespace LethalConstellations
         {
             public const string PLUGIN_GUID = "com.github.darmuh.LethalConstellations";
             public const string PLUGIN_NAME = "LethalConstellations";
-            public const string PLUGIN_VERSION = "0.1.6";
+            public const string PLUGIN_VERSION = "0.1.7";
         }
         
         internal static ManualLogSource Log;
@@ -29,6 +29,7 @@ namespace LethalConstellations
         //Compatibility
         public bool LobbyCompat = false;
         public bool LethalConfig = false;
+        public bool LethalMoonUnlocks = false;
         public Terminal Terminal;
         public TerminalNode dummyNode;
 

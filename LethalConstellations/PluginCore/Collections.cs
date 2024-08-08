@@ -2,7 +2,7 @@
 
 namespace LethalConstellations.PluginCore
 {
-    internal class Collections
+    public class Collections
     {
         internal static List<string> ConstellationsList = [];
 
@@ -19,7 +19,7 @@ namespace LethalConstellations.PluginCore
 
         internal static string CompanyMoon = "Gordion";
 
-        internal static string CurrentConstellation;
+        public static string CurrentConstellation; //easy way to get current constellation
 
         internal static string ConstellationsWord;
 
