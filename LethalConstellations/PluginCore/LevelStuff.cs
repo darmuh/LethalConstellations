@@ -1,6 +1,7 @@
 ﻿using LethalLevelLoader;
 using System.Collections.Generic;
 using static LethalConstellations.PluginCore.Collections;
+using LethalConstellations.EventStuff;
 
 namespace LethalConstellations.PluginCore
 {
@@ -29,6 +30,11 @@ namespace LethalConstellations.PluginCore
                 Plugin.Spam($"newCreds amount = {Plugin.instance.Terminal.groupCredits}");
                 StartOfRound.Instance.ChangeLevelServerRpc(newLevelID, Plugin.instance.Terminal.groupCredits);
                 gotConstellation = false;
+
+                NewEvents.RouteConstellationSuccess.Invoke(); //for other mods to subscribe to successful route
+
+                OneTimePurchaseCheck(constellationName);
+
                 return $"Travelling to {ConstellationWord} - {CurrentConstellation.ToUpper()}\nYour new credits balance: ${Plugin.instance.Terminal.groupCredits}\r\n\r\n";
             }
             else
@@ -109,6 +115,13 @@ namespace LethalConstellations.PluginCore
                         gotConstellation = true;
                     }
                 }
+
+                if(outConst.isLocked)
+                {
+                    ResetConstVars();
+                    failText = $"Unable to travel to {outConst.consName}. {ConstellationWord} is locked!\r\n\r\n";
+                    return true;
+                }
             }
 
             failText = "";
@@ -125,11 +138,61 @@ namespace LethalConstellations.PluginCore
             {
                 if (item.consName.ToLower() == constName.ToLower())
                 {
-                    return item.constelPrice;
+                    if (!OneTimePurchaseDone(item))
+                        return item.constelPrice;
+                    else
+                    {
+                        Plugin.Spam($"{item.consName} is designated as a OneTimePurchase, and now costs 0 credits");
+                        return 0;
+                    }
                 }
             }
 
             return 0;
+        }
+
+        internal static void OneTimePurchaseCheck(string constName)
+        {
+            if (ConstellationStuff.Count < 1)
+                return;
+
+            foreach (ClassMapper item in ConstellationStuff)
+            {
+                if (item.consName.ToLower() == constName.ToLower())
+                {
+                    if (!item.buyOnce)
+                        return;
+                    else
+                    {
+                        if(!item.oneTimePurchase)
+                        {
+                            Plugin.Spam("Updating oneTimePurchase to true");
+                            item.oneTimePurchase = true;
+                            if (!ConstellationsOTP.Contains(item.consName))
+                            {
+                                ConstellationsOTP.Add(item.consName);
+                                SaveManager.SaveUnlocks(ConstellationsOTP);
+                            }
+                            else
+                                Plugin.WARNING($"--- Error with oneTimePurchaseCheck, already in list ---");
+
+                        }
+                    }
+                }
+            }
+        }
+
+        internal static bool OneTimePurchaseDone(ClassMapper item)
+        {
+            if (!item.buyOnce)
+                return false;
+            else
+            {
+                if (item.oneTimePurchase)
+                    return true;
+            }
+
+            return false;
         }
 
         internal static string GetDefaultLevel(string constellation)
@@ -161,34 +224,30 @@ namespace LethalConstellations.PluginCore
             return -1;
         }
 
-        internal static void UpdateLevelList(List<string> moonNames, bool enableMoons)
+        internal static void UpdateLevelList(ClassMapper thisConstellation, bool enableMoons)
         {
-
             if (!enableMoons)
             {
                 Plugin.Spam($"Disabling all moons in: {constellationName}");
-                foreach(string name in moonNames)
+                foreach(string name in thisConstellation.constelMoons)
                 {
-                    AdjustExtendedLevel(name, constellationName, false);
+                    AdjustExtendedLevel(name, thisConstellation, false);
                 }
             }
             else
             {
                 Plugin.Spam($"Enabling all moons in: {constellationName}");
-                foreach (string name in moonNames)
+                foreach (string name in thisConstellation.constelMoons)
                 {
-                    AdjustExtendedLevel(name, constellationName, true);
+                    AdjustExtendedLevel(name, thisConstellation, true);
                 }
             }
         }
 
-        internal static void AdjustExtendedLevel(string levelName, string constellationName, bool thisConstellation)
+        internal static void AdjustExtendedLevel(string levelName, ClassMapper myConst, bool thisConstellation)
         {
             if (Plugin.instance.LethalMoonUnlocks)
                 return;
-
-            List<ExtendedLevel> allLevels = PatchedContent.VanillaExtendedLevels;
-            allLevels.AddRange(PatchedContent.CustomExtendedLevels);
 
             foreach (ExtendedLevel extendedLevel in PatchedContent.ExtendedLevels)
             {
@@ -206,7 +265,8 @@ namespace LethalConstellations.PluginCore
                     {
                         Plugin.Spam($"{extendedLevel.NumberlessPlanetName} should be ENABLED");
                         extendedLevel.IsRouteLocked = false;
-                        extendedLevel.IsRouteHidden = false;
+                        if(!myConst.stayHiddenMoons.Contains(extendedLevel.NumberlessPlanetName) && extendedLevel.NumberlessPlanetName.ToLower() != CompanyMoon.ToLower())
+                            extendedLevel.IsRouteHidden = false;
                         extendedLevel.LockedRouteNodeText = "";
                     }      
                 }
@@ -221,9 +281,11 @@ namespace LethalConstellations.PluginCore
                 return;
             }
 
+            Plugin.Spam($"Adjusting to {constellationName} from {levelName}");
+
             if(levelName.ToLower() == CompanyMoon.ToLower() && ClassMapper.TryGetConstellation(ConstellationStuff, constellationName, out ClassMapper conClass))
             {
-                AdjustExtendedLevel(levelName, constellationName, conClass.canRouteCompany);
+                AdjustExtendedLevel(levelName, conClass, conClass.canRouteCompany);
                 return;
             }
 
@@ -231,9 +293,20 @@ namespace LethalConstellations.PluginCore
             foreach (ClassMapper item in ConstellationStuff)
             {
                 if(item.consName == constellationName)
-                    UpdateLevelList(item.constelMoons, true);
+                {
+                    UpdateLevelList(item, true);
+
+                    if (item.canRouteCompany)
+                    {
+                        AdjustExtendedLevel(CompanyMoon, item, true);
+                    }
+                    else
+                    {
+                        AdjustExtendedLevel(CompanyMoon, item, false);
+                    }
+                }    
                 else
-                    UpdateLevelList(item.constelMoons, false);
+                    UpdateLevelList(item, false);
             }
         }
 

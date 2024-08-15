@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using OpenLib.CoreMethods;
 using UnityEngine;
 using OpenLib.Common;
+using LethalLevelLoader;
 
 namespace LethalConstellations.PluginCore
 {
@@ -33,7 +34,9 @@ namespace LethalConstellations.PluginCore
             Plugin.Spam("CreateConstellationCommands()");
             CreateConstellationCommands();
             CreateDummyNode();
-
+            MoonStuff.ModifyMoonPrices();
+            Plugin.Spam($"GetCurrentConstellation: {LevelManager.CurrentExtendedLevel.NumberlessPlanetName}");
+            LevelStuff.GetCurrentConstellation(LevelManager.CurrentExtendedLevel.NumberlessPlanetName);
         }
 
         internal static void UpdateBadNames()
@@ -106,7 +109,6 @@ namespace LethalConstellations.PluginCore
         internal static void CreateConstellationCategories()
         {
             ConstellationCats.Clear();
-            //Dictionary<string, string> ConstellationCategories = [];
             if (ConstellationStuff.Count < 1)
                 return;
 
@@ -117,11 +119,13 @@ namespace LethalConstellations.PluginCore
                     continue;
                 string menuText = item.menuText;
                 string defaultMoon = item.defaultMoon;
-                int price = item.constelPrice;
+                string defaultWeather = TerminalManager.GetWeatherConditions(item.defaultMoonLevel);
 
-                menuText = menuText.Replace("[~t]", "\t").Replace("[~n]","\n").Replace("[name]", item.consName).Replace("[price]", $"{price}").Replace("[defaultmoon]", $"{defaultMoon}");
+                int getPrice = LevelStuff.GetConstPrice(item.consName);
 
-                if (Configuration.HideUnaffordableConstellations.Value && price > Plugin.instance.Terminal.groupCredits)
+                menuText = menuText.Replace("[~t]", "\t").Replace("[~n]","\n").Replace("[name]", item.consName).Replace("[price]", $"{getPrice}").Replace("[defaultmoon]", $"{defaultMoon}").Replace("[currentweather]", defaultWeather).Replace("[optionals]", item.optionalParams);
+
+                if (Configuration.HideUnaffordableConstellations.Value && getPrice > Plugin.instance.Terminal.groupCredits)
                     continue;
 
                 if(!item.isHidden)
@@ -153,7 +157,6 @@ namespace LethalConstellations.PluginCore
         internal static void AddHintsToNodes()
         {
             string hintText = Configuration.ConstellationsHintText.Value.Replace("[keyword]", $"{ConstellationsWord.ToUpper()}");
-            TerminalNode helpNode = Plugin.instance.Terminal.terminalNodes.specialNodes[13];
             TerminalNode otherNode = LogicHandling.GetFromAllNodes("OtherCommands");
 
             if (Configuration.AddHintTo.Value == "both" || Configuration.AddHintTo.Value == "help")

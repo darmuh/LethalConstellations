@@ -43,3 +43,14 @@ Add company building (gordion) to default ignore list
 -done, sorta (handled differently)
 Add support for hiding constellations you cant afford (to avoid spoilers)
 -done
+
+
+----------------------------------------------
+Leafar req -
+Just wanted to leave here some features i had in mind that would be cool to have:
+Buy once (After paying to path to a constellation, let the players choose if you need to pay again to route to that constellation or unlocking it)
+Paths (Only being able to route to a specific constellation if another constellation have already been routed at least once)
+Preview Weather of Default Moon
+
+jakeisloud — 08/12/2024 9:36 AM
+That’s what I was thinking when I suggested the ability to put moons in multiple constellations

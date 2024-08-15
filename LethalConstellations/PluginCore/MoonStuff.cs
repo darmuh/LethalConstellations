@@ -22,6 +22,20 @@ namespace LethalConstellations.PluginCore
             }
         }
 
+        internal static ExtendedLevel GetExtendedLevel(string levelName)
+        {
+            foreach (ExtendedLevel extendedLevel in PatchedContent.ExtendedLevels)
+            {
+                if (extendedLevel.NumberlessPlanetName.ToLower() == levelName.ToLower())
+                {
+                    return extendedLevel;
+                }
+            }
+
+            Plugin.WARNING($"Unable to get extendedLevel from {levelName}");
+            return null;
+        }
+
         internal static bool TryGetMoon(string levelName, Dictionary<string, int> moonPrices, out int price)
         {
             price = -1;
@@ -39,22 +53,6 @@ namespace LethalConstellations.PluginCore
             }
 
             return false;
-        }
-
-        internal static int GetLevelPrice(string levelName)
-        {
-            if (MoonPrices.Count < 1)
-                return 0;
-
-            foreach (KeyValuePair<string, int> item in MoonPrices)
-            {
-                if (item.Key == levelName)
-                {
-                    return item.Value;
-                }
-            }
-
-            return 0;
         }
     }
 }

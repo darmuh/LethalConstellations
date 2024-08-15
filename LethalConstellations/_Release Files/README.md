@@ -10,22 +10,29 @@
 - Contains two config files. A static config and a generated one.
 	- Static config will dictate what is generated in the generated config.
 	- Generated config is generated after first lobby load.
-		- Currently this configuration cannot be modified by LethalConfig.
+		- Currently the generated config cannot be modified using LethalConfig.
 - Customizable keywords/text.
 	- Dont like the word constellation? Change it in the config!
 	- This mod will attempt to replace any pre-existing keywords from the config with radarbooster names as a fail safe.
 		- Please avoid overwriting any base-game keywords or other mods' keywords.
+		- If a terminal keyword already exists for any of the names you designate, they will be changed.
 	- Customizable text for all different types of terminal commands relating to the constellations.
+	- Optional shortcut keywords can also be added to each constellation.
 - Current Constellation will be updated on lobby load, works between save files!
 - Moon prices can also be modified by this mod or left to be handled elsewhere.
-- You can set routing to a specific constellation to cost credits or allow for your constellations to be free.
+- Set routing to a specific constellation to cost credits or allow for your constellations to be free.
+- Set a constellation to be a one-time-purchase, this purchase will be remembered for each save file.
 - Routing to a new constellation will take you to that constellation's default moon.
 	- This essentially makes the cost of routing to this moon however much it costs to route to your constellation.
 - Set which constellations the company can be routed to in the constellations config
 - Hide special constellations from the menu or if you cant afford it (with configuration options)
-- Set shorts for the constellation menu and specific constellations
+- Allow for a moon to remain hidden while being assigned to a constellation.
 - This mod does not do any patching, all game patching is done by OpenLib & LethalLevelLoader.
 - Compatibility with [LethalMoonUnlocks](https://thunderstore.io/c/lethal-company/p/explodingMods/LethalMoonUnlocks/)
+
+### For other mod devs looking to add compatibility:
+- Subscribe to the RouteConstellationSuccess event to call your own code when routing to a new constellation.
+- Access ConstellationStuff in Collections.cs for a listing of all constellations and their ClassMapper.cs properties
 
 ### If you have any ideas on how to make this mod better please feel free to reach out!
 

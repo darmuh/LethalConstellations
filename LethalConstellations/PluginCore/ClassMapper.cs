@@ -1,4 +1,5 @@
 ﻿
+using LethalLevelLoader;
 using System.Collections.Generic;
 
 namespace LethalConstellations.PluginCore
@@ -7,11 +8,17 @@ namespace LethalConstellations.PluginCore
     {
         public string consName;
         public List<string> constelMoons;
+        public List<string> stayHiddenMoons;
+        public bool buyOnce;
         public int constelPrice;
         public string defaultMoon;
+        public ExtendedLevel defaultMoonLevel;
         internal string menuText;
         internal string infoText;
         public bool isHidden;
+        public string optionalParams = ""; //for use in external mods. Can be used to add information to the main menu
+        public bool isLocked; //for use in other mods that will modify constellations display
+        public bool oneTimePurchase;
         public bool canRouteCompany;
         internal string shortcutList;
 
@@ -21,6 +28,8 @@ namespace LethalConstellations.PluginCore
             this.constelPrice = cPrice;
             this.defaultMoon = defMoon;
             this.menuText = menuText;
+            this.oneTimePurchase = false;
+            this.isLocked = false;
         }
 
         internal static void UpdateCNames(List<ClassMapper> constellations, Dictionary<string,string> fixedNames)
@@ -82,6 +91,40 @@ namespace LethalConstellations.PluginCore
 
             Plugin.Spam($"Unable to find bad name - {query}");
             return false;
+        }
+
+
+        internal static void UpdateConstellationUnlocks()
+        {
+            if (Collections.ConstellationsOTP.Count == 0)
+                return;
+
+            foreach(string item in Collections.ConstellationsOTP)
+            {
+                if(TryGetConstellation(Collections.ConstellationStuff, item, out ClassMapper outConst))
+                {
+                    if (outConst == null)
+                        continue;
+                    
+                    if(outConst.buyOnce && !outConst.oneTimePurchase)
+                        outConst.oneTimePurchase = true;
+
+                    Plugin.Spam($"{outConst.consName} detected as unlocked from save file");
+
+                }
+            }
+        }
+
+        internal static void ResetUnlockedConstellations(List<ClassMapper> constellations)
+        {
+            if (constellations.Count == 0)
+                return;
+
+            foreach (ClassMapper item in constellations)
+            {
+                item.oneTimePurchase = false;
+                Plugin.Spam($"{item.consName} OTP has been reset");
+            }
         }
     }
 }

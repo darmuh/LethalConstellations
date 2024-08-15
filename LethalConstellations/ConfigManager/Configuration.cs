@@ -43,7 +43,7 @@ namespace LethalConstellations.ConfigManager
             DeveloperLogging = MakeBool(Plugin.instance.Config, "Debug", "DeveloperLogging", false, "Enable or Disable developer logging for this mod. (this will fill your log file FAST)");
 
             //Setup
-            ConstellationList = MakeString(Plugin.instance.Config, "Setup", "ConstellationList", "Alpha,Bravo,Charlie", "Comma separated list of your ConstellationWord Names");
+            ConstellationList = MakeString(Plugin.instance.Config, "Setup", "ConstellationList", "", "Comma separated list of your ConstellationWord Names, or leave blank for default LLL moon tags");
             IgnoreList = MakeString(Plugin.instance.Config, "Setup", "IgnoreList", "Liquidation,Moon2Example", "Comma separated list of moon names that should not be touched by this mod.\nGenerally you'll almost always have Liquidation in this list until it's a real moon as well as any moons you dont want associated with any particular constellation");
             ModifyMoonPrices = MakeBool(Plugin.instance.Config, "Setup", "ModifyMoonPrices", true, "Disable this to stop this mod from modifying any moon prices");
             RequireConfirmation = MakeBool(Plugin.instance.Config, "Setup", "RequireConfirmation", true, "Enable this to require add a confirmation check before routing to a constellation and spending credits");

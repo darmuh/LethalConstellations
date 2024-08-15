@@ -27,6 +27,8 @@ namespace LethalConstellations.PluginCore
 
         internal static TerminalNode ConstellationsNode;
 
+        internal static List<string> ConstellationsOTP = [];
+
         internal static void Start()
         {
             MoonPrices.Clear();

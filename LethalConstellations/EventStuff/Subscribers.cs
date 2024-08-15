@@ -43,6 +43,7 @@ namespace LethalConstellations.EventStuff
         public static void OnTerminalStart()
         {
             MenuStuff.PreInit();
+            SaveManager.InitSave();
         }
 
         public static void OnLevelChange()
