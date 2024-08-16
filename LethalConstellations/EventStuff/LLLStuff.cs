@@ -71,6 +71,7 @@ namespace LethalConstellations.EventStuff
 
             Plugin.Spam($"ConfigCount: {Configuration.GeneratedConfig.Count}");
             Configuration.GeneratedConfig.Save();
+            RemoveOrphanedEntries(Configuration.GeneratedConfig);
             LethalConfigStuff();
         }
 
@@ -180,7 +181,7 @@ namespace LethalConstellations.EventStuff
 
                 Plugin.Spam("not the company moon");
 
-                ConfigEntry<int> levelPrice = MakeClampedInt(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} Price", extendedLevel.RoutePrice, "Set a custom route price for this moon (should autopopulate with the correct default price)", 0, 9999);
+                ConfigEntry<int> levelPrice = MakeClampedInt(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} Price", extendedLevel.RoutePrice, "Set a custom route price for this moon (should autopopulate with the correct default price)", 0, 99999);
 
                 ConfigEntry<bool> stayHiding = MakeBool(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} Stay Hidden", extendedLevel.IsRouteHidden, $"Set this to true to keep {extendedLevel.NumberlessPlanetName} hidden even when you're in it's constellation");
 
@@ -206,7 +207,7 @@ namespace LethalConstellations.EventStuff
                         AddToConstelMoons(extendedLevel.NumberlessPlanetName, levelToConstellation.Value, stayHiding.Value);
                 }
 
-                MoonPrices.Add(extendedLevel.NumberlessPlanetName, levelPrice.Value);
+                MoonPrices.Add(extendedLevel, levelPrice.Value);
             }
         }
 
@@ -270,9 +271,9 @@ namespace LethalConstellations.EventStuff
             if (MoonPrices.Count < 1)
                 return 0;
 
-            foreach (KeyValuePair<string, int> moon in MoonPrices)
+            foreach (KeyValuePair<ExtendedLevel, int> moon in MoonPrices)
             {
-                if(moon.Key.ToLower() == moonName.ToLower())
+                if(moon.Key.NumberlessPlanetName.ToLower() == moonName.ToLower())
                     return moon.Value;
             }
 

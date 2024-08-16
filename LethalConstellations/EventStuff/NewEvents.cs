@@ -2,7 +2,7 @@
 
 namespace LethalConstellations.EventStuff
 {
-    internal class NewEvents
+    public class NewEvents
     {
         public static Events.CustomEvent RouteConstellationSuccess = new();
     }

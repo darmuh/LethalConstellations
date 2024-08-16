@@ -77,13 +77,20 @@
     </Reference>
     <Reference Include="LethalConfig">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\AinaVT-LethalConfig\LethalConfig\LethalConfig.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="LethalLevelLoader">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\IAmBatby-LethalLevelLoader\LethalLevelLoader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="LethalNetworkAPI">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\xilophor-LethalNetworkAPI\LethalNetworkAPI\LethalNetworkAPI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="OpenLib, Version=0.1.7.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Z:\games\modding\LC\publicDevLibrary\OpenLib\_Release Files\OpenLib.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -135,6 +142,7 @@
   <ItemGroup>
     <Compile Include="Compat\BMX_LobbyCompat.cs" />
     <Compile Include="Compat\LethalConfigCompat.cs" />
+    <Compile Include="Compat\NetworkThings.cs" />
     <Compile Include="EventStuff\NewEvents.cs" />
     <Compile Include="PluginCore\ClassMapper.cs" />
     <Compile Include="PluginCore\Collections.cs" />

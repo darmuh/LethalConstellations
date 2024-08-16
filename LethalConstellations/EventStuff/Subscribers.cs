@@ -14,7 +14,7 @@ namespace LethalConstellations.EventStuff
             EventManager.TerminalStart.AddListener(OnTerminalStart);
             EventManager.TerminalLoadNewNode.AddListener(OnLoadNode);
             EventManager.StartOfRoundChangeLevel.AddListener(OnLevelChange);
-            //EventManager.GameNetworkManagerStart.AddListener(OnStartup);
+            //EventManager.OnClientConnect.AddListener(OnClientConnected);
             AssetBundleLoader.onBundlesFinishedLoading += OnStartup;
             LethalLevelLoader.Plugin.onSetupComplete += LLLStuff.LLLSetup;
         }
@@ -51,6 +51,7 @@ namespace LethalConstellations.EventStuff
             Plugin.Spam("setting currentLevel");
             Plugin.Spam($"{LevelManager.CurrentExtendedLevel.NumberlessPlanetName}, {LevelManager.CurrentExtendedLevel.IsRouteLocked}, {LevelManager.CurrentExtendedLevel.IsRouteHidden}, {LevelManager.CurrentExtendedLevel.LockedRouteNodeText}");
             LevelStuff.GetCurrentConstellation(LevelManager.CurrentExtendedLevel.NumberlessPlanetName);
+
         }
 
         public static void OnStartup()
@@ -65,6 +66,27 @@ namespace LethalConstellations.EventStuff
             if (OpenLib.Common.StartGame.SoftCompatibility("com.xmods.lethalmoonunlocks", ref Plugin.instance.LethalMoonUnlocks))
                 Plugin.Log.LogInfo("LethalMoonUnlocks Detected! Disabling moon unlock/hiding from this mod.");
 
+            if (OpenLib.Common.StartGame.SoftCompatibility("LethalNetworkAPI", ref Plugin.instance.LethalNetworkAPI))
+            {
+                Plugin.Log.LogInfo("NetworkApi detected, networking unlocked!");
+            }
+        }
+
+        public static void OnClientConnected()
+        {
+            if (!GameNetworkManager.Instance.isHostingGame)
+                return;
+
+            if (!Plugin.instance.LethalNetworkAPI)
+                return;
+
+            if (Collections.ConstellationsOTP == null)
+                return;
+
+            if (Collections.ConstellationsOTP.Count == 0)
+                return;
+
+            NetworkThings.SyncUnlockSet(Collections.ConstellationsOTP);
         }
     }
 }

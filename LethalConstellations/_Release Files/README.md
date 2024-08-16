@@ -22,6 +22,7 @@
 - Moon prices can also be modified by this mod or left to be handled elsewhere.
 - Set routing to a specific constellation to cost credits or allow for your constellations to be free.
 - Set a constellation to be a one-time-purchase, this purchase will be remembered for each save file.
+	- In order to sync between players this feature requires [LethalNetworkAPI](https://thunderstore.io/c/lethal-company/p/xilophor/LethalNetworkAPI/) to be present.
 - Routing to a new constellation will take you to that constellation's default moon.
 	- This essentially makes the cost of routing to this moon however much it costs to route to your constellation.
 - Set which constellations the company can be routed to in the constellations config
@@ -31,7 +32,7 @@
 - Compatibility with [LethalMoonUnlocks](https://thunderstore.io/c/lethal-company/p/explodingMods/LethalMoonUnlocks/)
 
 ### For other mod devs looking to add compatibility:
-- Subscribe to the RouteConstellationSuccess event to call your own code when routing to a new constellation.
+- Subscribe to the RouteConstellationSuccess event in NewEvents.cs to call your own code when routing to a new constellation.
 - Access ConstellationStuff in Collections.cs for a listing of all constellations and their ClassMapper.cs properties
 
 ### If you have any ideas on how to make this mod better please feel free to reach out!

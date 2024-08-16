@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.2.1]
+ - Fixed issue of non-host players being unable to join the lobby with this mod present.
+ - OneTimeUnlocks for Constellations is now dependent on whether or not [LethalNetworkAPI](https://thunderstore.io/c/lethal-company/p/xilophor/LethalNetworkAPI/) is present.
+	- This will be a soft compatibility and if LethalNetworkAPI is not present then constellations will fall back to normal purchase behaviour.
+ - Changed moon pricing list to use the actual extendedLevel from LLL rather than a string reference of it's name to hopefully fix issues with prices not updating.
+ - Publicized the class containing RouteConstellationSuccess so it should now be accessible.
+ - Raised maximum moon price to 99999
+ - Added orphaned config item check to remove old inactive configs
+
 ## [0.2.0]
  - **WARNING** Backup your old config file before updating, some config items have moved/changed.
  - Fixed issue where Moon prices were not being updated at each lobby load

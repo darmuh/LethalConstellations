@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using static LethalConstellations.PluginCore.Collections;
 using LethalConstellations.EventStuff;
+using LethalConstellations.Compat;
 
 namespace LethalConstellations.PluginCore
 {
@@ -26,16 +27,16 @@ namespace LethalConstellations.PluginCore
                 if (Plugin.instance.Terminal.groupCredits < getPrice)
                     return $"Unable to afford to travel to {ConstellationWord} - {CurrentConstellation.ToUpper()}\r\n\r\n";
                 Plugin.Spam($"oldcreds: {Plugin.instance.Terminal.groupCredits}");
-                Plugin.instance.Terminal.groupCredits -= getPrice;
+                int newCreds = Plugin.instance.Terminal.groupCredits - getPrice;
                 Plugin.Spam($"newCreds amount = {Plugin.instance.Terminal.groupCredits}");
-                StartOfRound.Instance.ChangeLevelServerRpc(newLevelID, Plugin.instance.Terminal.groupCredits);
+                StartOfRound.Instance.ChangeLevelServerRpc(newLevelID, newCreds);
                 gotConstellation = false;
 
                 NewEvents.RouteConstellationSuccess.Invoke(); //for other mods to subscribe to successful route
 
                 OneTimePurchaseCheck(constellationName);
 
-                return $"Travelling to {ConstellationWord} - {CurrentConstellation.ToUpper()}\nYour new credits balance: ${Plugin.instance.Terminal.groupCredits}\r\n\r\n";
+                return $"Travelling to {ConstellationWord} - {CurrentConstellation.ToUpper()}\nYour new credits balance: ${newCreds}\r\n\r\n";
             }
             else
                 return "ERROR: Unable to load constellation default level!\r\n\r\n";
@@ -160,7 +161,7 @@ namespace LethalConstellations.PluginCore
             {
                 if (item.consName.ToLower() == constName.ToLower())
                 {
-                    if (!item.buyOnce)
+                    if (!item.buyOnce || !Plugin.instance.LethalNetworkAPI)
                         return;
                     else
                     {
@@ -172,6 +173,7 @@ namespace LethalConstellations.PluginCore
                             {
                                 ConstellationsOTP.Add(item.consName);
                                 SaveManager.SaveUnlocks(ConstellationsOTP);
+                                NetworkThings.SyncUnlockSet(ConstellationsOTP);
                             }
                             else
                                 Plugin.WARNING($"--- Error with oneTimePurchaseCheck, already in list ---");
@@ -251,7 +253,6 @@ namespace LethalConstellations.PluginCore
 
             foreach (ExtendedLevel extendedLevel in PatchedContent.ExtendedLevels)
             {
-                Plugin.Spam($"checking {extendedLevel.NumberlessPlanetName} vs {levelName}");
                 if (extendedLevel.NumberlessPlanetName.ToLower() == levelName.ToLower())
                 {
                     if (!thisConstellation)

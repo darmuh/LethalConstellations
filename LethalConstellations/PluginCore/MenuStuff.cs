@@ -35,8 +35,8 @@ namespace LethalConstellations.PluginCore
             CreateConstellationCommands();
             CreateDummyNode();
             MoonStuff.ModifyMoonPrices();
-            Plugin.Spam($"GetCurrentConstellation: {LevelManager.CurrentExtendedLevel.NumberlessPlanetName}");
-            LevelStuff.GetCurrentConstellation(LevelManager.CurrentExtendedLevel.NumberlessPlanetName);
+            //Plugin.Spam($"GetCurrentConstellation: {LevelManager.CurrentExtendedLevel.NumberlessPlanetName}");
+            //LevelStuff.GetCurrentConstellation(LevelManager.CurrentExtendedLevel.NumberlessPlanetName);
         }
 
         internal static void UpdateBadNames()

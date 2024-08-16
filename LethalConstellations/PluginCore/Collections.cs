@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using LethalLevelLoader;
+using System.Collections.Generic;
 
 namespace LethalConstellations.PluginCore
 {
@@ -11,7 +12,7 @@ namespace LethalConstellations.PluginCore
         internal static Dictionary<string,string> ConstellationCats = [];
         //ConstellationCats.Add(item, $"Route to ConstellationWord {item}\t${price}");
 
-        internal static Dictionary<string, int> MoonPrices = [];
+        internal static Dictionary<ExtendedLevel, int> MoonPrices = [];
         //MoonPrices.Add(extendedLevel.NumberlessPlanetName, levelPrice.Value);
 
         internal static Dictionary<string, string> CNameFix = [];

@@ -61,6 +61,7 @@ namespace LethalConstellations.ConfigManager
 
 
             Plugin.instance.Config.Save();
+            RemoveOrphanedEntries(Plugin.instance.Config);
 
             Collections.ConstellationWord = ConstellationWord.Value;
             Collections.ConstellationsWord = ConstellationsWord.Value;
