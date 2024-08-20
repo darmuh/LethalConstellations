@@ -20,7 +20,7 @@ namespace LethalConstellations.PluginCore
 
         internal static string CompanyMoon = "Gordion";
 
-        public static string CurrentConstellation; //easy way to get current constellation
+        public static string CurrentConstellation = ""; //easy way to get current constellation
 
         internal static string ConstellationsWord;
 

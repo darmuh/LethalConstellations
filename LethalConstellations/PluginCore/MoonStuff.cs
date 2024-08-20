@@ -30,8 +30,8 @@ namespace LethalConstellations.PluginCore
                 }
             }
 
-            Plugin.WARNING($"Unable to get extendedLevel from {levelName}");
-            return null;
+            Plugin.WARNING($"WARNING: Unable to get extendedLevel from {levelName}!!");
+            return null!;
         }
 
         internal static bool TryGetMoon(string levelName, Dictionary<string, int> moonPrices, out int price)

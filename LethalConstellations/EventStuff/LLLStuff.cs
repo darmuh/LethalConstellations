@@ -155,6 +155,16 @@ namespace LethalConstellations.EventStuff
 
                 constel.defaultMoonLevel = MoonStuff.GetExtendedLevel(constel.defaultMoon);
 
+                if(constel.defaultMoonLevel == null)
+                {
+                    Plugin.WARNING("defaultMoonLevel was NULL due to invalid config item.\n\nSetting default moon to new random and updating config item!");
+                    string newDef = GetRandomDefault(constel);
+                    constel.defaultMoon = newDef;
+                    defaultMoon.Value = newDef;
+                    constel.defaultMoonLevel = MoonStuff.GetExtendedLevel(newDef);
+
+                }
+
                 ConfigEntry<int> constellationPrice = MakeClampedInt(Configuration.GeneratedConfig, $"Constellation {constel.consName}", $"{constel.consName} constellationPrice", defPrice, $"Set the price to route to this constellation and it's defaultMoon", 0, 9999);
 
                 constel.constelPrice = constellationPrice.Value;
@@ -235,32 +245,6 @@ namespace LethalConstellations.EventStuff
             {
                 if (item.Key == configName)
                     return true;
-            }
-
-            return false;
-        }
-
-        //get string out config
-        internal static bool CheckForConfigName(string configName, out ConfigEntry<string> configEntry)
-        {
-            configEntry = null;
-            foreach (ConfigDefinition item in Configuration.GeneratedConfig.Keys)
-            {
-                if (item.Key == configName)   
-                    return Configuration.GeneratedConfig.TryGetEntry(item, out configEntry);
-            }
-
-            return false;
-        }
-
-        //get int out config
-        internal static bool CheckForConfigName(string configName, out ConfigEntry<int> configEntry)
-        {
-            configEntry = null;
-            foreach (ConfigDefinition item in Configuration.GeneratedConfig.Keys)
-            {
-                if (item.Key == configName)
-                    return Configuration.GeneratedConfig.TryGetEntry(item, out configEntry);
             }
 
             return false;

@@ -10,7 +10,7 @@ namespace LethalConstellations.PluginCore
     {
         internal static bool gotConstellation = false;
         internal static bool cancelConfirmation = false;
-        internal static string constellationName;
+        internal static string constellationName = "";
 
 
         internal static string RouteConstellation()
@@ -22,10 +22,10 @@ namespace LethalConstellations.PluginCore
             int newLevelID = GetLevelID(defaultLevel);
             if (newLevelID != -1)
             {
-                CurrentConstellation = constellationName;
                 int getPrice = GetConstPrice(constellationName);
                 if (Plugin.instance.Terminal.groupCredits < getPrice)
-                    return $"Unable to afford to travel to {ConstellationWord} - {CurrentConstellation.ToUpper()}\r\n\r\n";
+                    return $"Unable to afford to travel to {ConstellationWord} - {constellationName.ToUpper()}\r\n\r\n";
+                CurrentConstellation = constellationName;
                 Plugin.Spam($"oldcreds: {Plugin.instance.Terminal.groupCredits}");
                 int newCreds = Plugin.instance.Terminal.groupCredits - getPrice;
                 Plugin.Spam($"newCreds amount = {Plugin.instance.Terminal.groupCredits}");
@@ -73,7 +73,7 @@ namespace LethalConstellations.PluginCore
             if (ConstellationStuff.Count < 1)
             {
                 ResetConstVars();
-                failText = "Configuration failure detected!";
+                failText = "Configuration failure detected!\r\n\r\n";
                 return true;
             }
 
@@ -91,8 +91,20 @@ namespace LethalConstellations.PluginCore
                 return true;
             }
 
-            if (Plugin.instance.Terminal == null)
-                Plugin.ERROR("terminal instance is null?!?");
+            if (Plugin.instance.Terminal.screenText.text == null || Plugin.instance.Terminal.textAdded < 0)
+            {
+                ResetConstVars();
+                failText = $"Unable to determine terminal text\r\n\r\n";
+                return true;
+            }
+
+            if (Plugin.instance.Terminal.screenText.text.Length <= Plugin.instance.Terminal.textAdded)
+            {
+                ResetConstVars();
+                failText = $"Unable to determine terminal command given\r\n\r\n";
+                return true;
+            }
+                
 
             Plugin.Spam("Getting screen text");
             string screen = Plugin.instance.Terminal.screenText.text.Substring(Plugin.instance.Terminal.screenText.text.Length - Plugin.instance.Terminal.textAdded);

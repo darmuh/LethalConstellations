@@ -114,12 +114,19 @@ namespace LethalConstellations.PluginCore
 
             foreach(ClassMapper item in ConstellationStuff)
             {
+                Plugin.Spam($"{item.consName} category creation");
                 int catMoons = item.constelMoons.Count;
                 if (catMoons < 1)
                     continue;
                 string menuText = item.menuText;
                 string defaultMoon = item.defaultMoon;
-                string defaultWeather = TerminalManager.GetWeatherConditions(item.defaultMoonLevel);
+                string defaultWeather = "";
+                if (item.defaultMoonLevel == null)
+                {
+                    Plugin.WARNING($"{item.consName} defaultMoonLevel is NULL. This will affect performance of the mod");
+                }
+                else
+                    defaultWeather = TerminalManager.GetWeatherConditions(item.defaultMoonLevel);
 
                 int getPrice = LevelStuff.GetConstPrice(item.consName);
 

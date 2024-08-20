@@ -7,8 +7,8 @@ namespace LethalConstellations.PluginCore
     public class ClassMapper
     {
         public string consName;
-        public List<string> constelMoons;
-        public List<string> stayHiddenMoons;
+        public List<string> constelMoons = [];
+        public List<string> stayHiddenMoons = []; 
         public bool buyOnce;
         public int constelPrice;
         public string defaultMoon;
@@ -52,7 +52,7 @@ namespace LethalConstellations.PluginCore
             if (constellations.Count < 1 || query.Length < 1)
             {
                 Plugin.Spam("Invalid search in TryGetConstellation()");
-                outConst = null;
+                outConst = null!;
                 return false;
             }
 
@@ -67,7 +67,7 @@ namespace LethalConstellations.PluginCore
             }
 
             Plugin.Spam($"Cannot find {query}");
-            outConst = null;
+            outConst = null!;
             return false;
         }
 

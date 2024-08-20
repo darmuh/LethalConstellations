@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.2.2]
+ - Added nullable to project.
+ - Fixed issue where having the default moon for a constellation set to a moon that doesn't exist would break the terminal.
+	- This would happen if you removed a moon from your mod profile or if you never set a default for the constellation.
+ - Fixed issue where the CurrentConstellation publicized string value would be updated even if you can't afford the constellation.
+	- Thanks @xCore
+ - Added more error handling for cases where the terminal is broken.
+	- and some logging for common things that have failed in the past
+
 ## [0.2.1]
  - Fixed issue of non-host players being unable to join the lobby with this mod present.
  - OneTimeUnlocks for Constellations is now dependent on whether or not [LethalNetworkAPI](https://thunderstore.io/c/lethal-company/p/xilophor/LethalNetworkAPI/) is present.
