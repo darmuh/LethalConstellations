@@ -1,5 +1,5 @@
 ﻿using LethalConstellations.Compat;
-using Steamworks.Ugc;
+using LethalLevelLoader;
 using System.Collections.Generic;
 using static LethalConstellations.PluginCore.Collections;
 
@@ -12,7 +12,12 @@ namespace LethalConstellations.PluginCore
             Plugin.Spam("InitSave");
 
             if (!Plugin.instance.LethalNetworkAPI)
+            {
+                Plugin.WARNING("Networking is disabled!");
+                LevelStuff.DefaultConstellation(); //set current constellation
                 return;
+            }
+                
 
             ConstellationsOTP.Clear();
             ClassMapper.ResetUnlockedConstellations(ConstellationStuff);
@@ -24,6 +29,13 @@ namespace LethalConstellations.PluginCore
                 return;
             }
 
+            InitUnlocks();
+            InitCurrent();
+
+        }
+
+        internal static void InitUnlocks()
+        {
             if (!ES3.KeyExists("LethalConstellations_Unlocks", GameNetworkManager.Instance.currentSaveFileName))
             {
                 Plugin.Spam("Creating save key for LethalConstellations_Unlocks");
@@ -46,6 +58,36 @@ namespace LethalConstellations.PluginCore
 
             Plugin.Spam("saving LethalConstellations_Unlocks");
             ES3.Save<List<string>>("LethalConstellations_Unlocks", unlockList, GameNetworkManager.Instance.currentSaveFileName);
+        }
+
+        internal static void InitCurrent()
+        {
+
+            if (!ES3.KeyExists("LethalConstellations_Current", GameNetworkManager.Instance.currentSaveFileName))
+            {
+                Plugin.Spam("Creating save key for LethalConstellations_Current");
+                LevelStuff.GetCurrentConstellation(LevelManager.CurrentExtendedLevel.NumberlessPlanetName);
+                string current = CurrentConstellation;
+                Plugin.Spam($"CurrentConstellation: {CurrentConstellation}");
+                ES3.Save<string>("LethalConstellations_Current", CurrentConstellation, GameNetworkManager.Instance.currentSaveFileName);
+                NetworkThings.SyncCurrentSet(current);
+            }
+            else
+            {
+                string fromSave = ES3.Load<string>("LethalConstellations_Current", GameNetworkManager.Instance.currentSaveFileName);
+                Plugin.Spam($"CurrentConstellation fromSave: {fromSave}");
+                Plugin.Spam("Updating current constellation from save file");
+                NetworkThings.SyncCurrentSet(fromSave);
+            }
+        }
+
+        internal static void SaveCurrentConstellation(string currentConstellation)
+        {
+            if (!GameNetworkManager.Instance.isHostingGame)
+                return;
+
+            Plugin.Spam("saving LethalConstellations_Current");
+            ES3.Save<string>("LethalConstellations_Current", currentConstellation, GameNetworkManager.Instance.currentSaveFileName);
         }
 
 

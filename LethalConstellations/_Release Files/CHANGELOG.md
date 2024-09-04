@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.2.3]
+ - Fixed issue where current constellation could not be calculated when loading a save that was last at the company moon.
+	- With networkapi present, this variable will be tracked in your gamesave.
+	- Without networkapi present, will resort to your default company constellation as defined by [CompanyDefaultConstellation]
+		- If the config item fails to find a matching constellation, will return the first constellation.
+ - Updated ThunderStore name to LethalConstellations (the underscore was bothering me)
+
 ## [0.2.2]
  - Added nullable to project.
  - Fixed issue where having the default moon for a constellation set to a moon that doesn't exist would break the terminal.

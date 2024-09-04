@@ -45,6 +45,9 @@
   <ItemGroup>
     <None Include="_Release Files\CHANGELOG.md" />
     <None Include="_Release Files\manifest.json" />
+    <None Include="_Release Files\Old\CHANGELOG.md" />
+    <None Include="_Release Files\Old\manifest.json" />
+    <None Include="_Release Files\Old\README.md" />
     <None Include="_Release Files\README.md" />
   </ItemGroup>
   <ItemGroup>

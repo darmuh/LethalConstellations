@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using static LethalConstellations.PluginCore.Collections;
 using LethalConstellations.EventStuff;
 using LethalConstellations.Compat;
+using LethalConstellations.ConfigManager;
 
 namespace LethalConstellations.PluginCore
 {
@@ -242,7 +243,7 @@ namespace LethalConstellations.PluginCore
         {
             if (!enableMoons)
             {
-                Plugin.Spam($"Disabling all moons in: {constellationName}");
+                Plugin.Spam($"Disabling all moons in: {thisConstellation.consName}");
                 foreach(string name in thisConstellation.constelMoons)
                 {
                     AdjustExtendedLevel(name, thisConstellation, false);
@@ -250,7 +251,7 @@ namespace LethalConstellations.PluginCore
             }
             else
             {
-                Plugin.Spam($"Enabling all moons in: {constellationName}");
+                Plugin.Spam($"Enabling all moons in: {thisConstellation.consName}");
                 foreach (string name in thisConstellation.constelMoons)
                 {
                     AdjustExtendedLevel(name, thisConstellation, true);
@@ -298,7 +299,7 @@ namespace LethalConstellations.PluginCore
 
             if(levelName.ToLower() == CompanyMoon.ToLower() && ClassMapper.TryGetConstellation(ConstellationStuff, constellationName, out ClassMapper conClass))
             {
-                AdjustExtendedLevel(levelName, conClass, conClass.canRouteCompany);
+                AdjustExtendedLevel(conClass.defaultMoon, conClass, conClass.canRouteCompany);
                 return;
             }
 
@@ -321,6 +322,10 @@ namespace LethalConstellations.PluginCore
                 else
                     UpdateLevelList(item, false);
             }
+
+            CurrentConstellation = constellationName;
+            if (GameNetworkManager.Instance.isHostingGame)
+                SaveManager.SaveCurrentConstellation(CurrentConstellation);
         }
 
 
@@ -333,7 +338,10 @@ namespace LethalConstellations.PluginCore
             }
 
             if (levelName.ToLower() == CompanyMoon.ToLower())
+            {
+                DefaultConstellation();
                 return;
+            }    
 
             //ConstellationsToMoons.Add(extendedLevel.NumberlessPlanetName, levelToConstellation.Value);
             foreach (ClassMapper item in ConstellationStuff)
@@ -342,10 +350,50 @@ namespace LethalConstellations.PluginCore
                 if (lowerCaseMoons.Contains(levelName.ToLower()))
                 {
                     CurrentConstellation = item.consName;
-                    Plugin.Spam($"CurrentConstellation set to {CurrentConstellation}");
+                    Plugin.Spam($"DefaultConstellation set to {CurrentConstellation}");
                     AdjustToNewConstellation(levelName, CurrentConstellation);
                 }
+            }
+        }
 
+        internal static void DefaultConstellation()
+        {
+            if (LevelManager.CurrentExtendedLevel.NumberlessPlanetName.ToLower() == CompanyMoon.ToLower() && CurrentConstellation.Length < 1)
+            {
+                Plugin.WARNING("Current save is located at the Company! Setting to default!");
+                if(TryGetDefaultConstellation(out ClassMapper theConst))
+                {
+                    if (theConst.canRouteCompany)
+                    {
+                        AdjustToNewConstellation(theConst.defaultMoon, theConst.consName);
+                        return;
+                    }     
+                }
+
+                Plugin.WARNING("Unable to load default constellation from config item. Setting to first contellation in list.");
+                AdjustToNewConstellation(ConstellationStuff[0].defaultMoon, ConstellationStuff[0].consName);
+            }
+        }
+
+        internal static bool TryGetDefaultConstellation(out ClassMapper theConst)
+        {
+            if (ConstellationStuff.Count == 0)
+            {
+                Plugin.ERROR("Unable to detect ConstellationStuff listing!!");
+                theConst = null;
+                return false;
+            }
+
+            if (ClassMapper.TryGetConstellation(ConstellationStuff, Configuration.CompanyDefaultConstellation.Value, out theConst))
+            {
+                Plugin.Spam($"Returning {theConst.consName}");
+                return true;
+            }
+            else
+            {
+                Plugin.Spam($"Config item not matching anything, returning first constellation: {ConstellationStuff[0].consName}");
+                theConst = ConstellationStuff[0];
+                return true;
             }
         }
     }

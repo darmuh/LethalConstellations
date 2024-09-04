@@ -1,0 +1,9 @@
+{
+  "name": "Lethal_Constellations",
+  "version_number": "0.2.3",
+  "website_url": "https://github.com/darmuh/LethalConstellations",
+  "description": "This mod has moved to https://thunderstore.io/c/lethal-company/p/darmuh/LethalConstellations/",
+  "dependencies": [
+    "darmuh-LethalConstellations-0.2.3"
+  ]
+}

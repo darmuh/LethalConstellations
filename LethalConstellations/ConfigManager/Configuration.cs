@@ -23,6 +23,7 @@ namespace LethalConstellations.ConfigManager
         public static ConfigEntry<string> IgnoreList { get; internal set; }
         public static ConfigEntry<bool> RequireConfirmation { get; internal set; }
         public static ConfigEntry<string> AddHintTo {  get; internal set; }
+        public static ConfigEntry<string> CompanyDefaultConstellation { get; internal set; }
 
         //Customization
         public static ConfigEntry<string> ConstellationsWord { get; internal set; }
@@ -44,6 +45,7 @@ namespace LethalConstellations.ConfigManager
 
             //Setup
             ConstellationList = MakeString(Plugin.instance.Config, "Setup", "ConstellationList", "", "Comma separated list of your ConstellationWord Names, or leave blank for default LLL moon tags");
+            CompanyDefaultConstellation = MakeString(Plugin.instance.Config, "Setup", "CompanyDefaultConstellation", "", "The company's default constellation.\nThis constellation will be assigned when loading saves starting at the company moon.");
             IgnoreList = MakeString(Plugin.instance.Config, "Setup", "IgnoreList", "Liquidation,Moon2Example", "Comma separated list of moon names that should not be touched by this mod.\nGenerally you'll almost always have Liquidation in this list until it's a real moon as well as any moons you dont want associated with any particular constellation");
             ModifyMoonPrices = MakeBool(Plugin.instance.Config, "Setup", "ModifyMoonPrices", true, "Disable this to stop this mod from modifying any moon prices");
             RequireConfirmation = MakeBool(Plugin.instance.Config, "Setup", "RequireConfirmation", true, "Enable this to require add a confirmation check before routing to a constellation and spending credits");
@@ -51,6 +53,7 @@ namespace LethalConstellations.ConfigManager
             AddHintTo = MakeClampedString(Plugin.instance.Config, "Setup", "AddHintTo", "both", "Choose where to add hints to the main 'constellations' command", new AcceptableValueList<string>("both", "none", "help", "other"));
             ConstellationSpecificInfoNodes = MakeBool(Plugin.instance.Config, "Setup", "ConstellationSpecificInfoNodes", false, "Enable this to add config options to the dynamic config for each constellation to have info nodes with customizable text");
             
+
 
             //Customization
             ConstellationsWord = MakeString(Plugin.instance.Config, "Customization", "ConstellationsWord", "Constellations", "Use this config item to change any instance of the word 'Constellations' with your own specific word.\nThe terminal keyword will use this one!!!");
