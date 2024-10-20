@@ -1,7 +1,7 @@
 ﻿using LethalConstellations.PluginCore;
-using System.Collections.Generic;
 using LethalNetworkAPI;
 using LethalNetworkAPI.Utils;
+using System.Collections.Generic;
 
 
 namespace LethalConstellations.Compat
@@ -26,14 +26,14 @@ namespace LethalConstellations.Compat
             if (!Plugin.instance.LethalNetworkAPI)
                 return;
 
-            if(unlockedConst.Count == 0)
+            if (unlockedConst.Count == 0)
             {
                 Plugin.WARNING("Attempting to sync blank ConstellationsOTP!!!");
             }
 
             LNetworkMessage<List<string>> constellationsUnlocked = LNetworkMessage<List<string>>.Connect("constellationsUnlocked", SyncUnlockHost, SyncUnlockClient);
 
-            if(LNetworkUtils.IsHostOrServer)
+            if (LNetworkUtils.IsHostOrServer)
                 constellationsUnlocked.SendClients(unlockedConst, LNetworkUtils.AllConnectedClients);
             else
                 constellationsUnlocked.SendServer(unlockedConst);

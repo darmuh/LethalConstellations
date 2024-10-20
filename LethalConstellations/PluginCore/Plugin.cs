@@ -1,18 +1,16 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using LethalConstellations.ConfigManager;
 using LethalConstellations.EventStuff;
-using BepInEx.Configuration;
 using System.IO;
-using LethalConstellations.PluginCore;
 
 
 namespace LethalConstellations
 {
     [BepInPlugin("com.github.darmuh.LethalConstellations", "LethalConstellations", (PluginInfo.PLUGIN_VERSION))]
     [BepInDependency("imabatby.lethallevelloader", "1.3.8")]
-    [BepInDependency("darmuh.OpenLib", "0.1.8")]
-
+    [BepInDependency("darmuh.OpenLib", "0.2.5")]
 
     public class Plugin : BaseUnityPlugin
     {
@@ -21,14 +19,12 @@ namespace LethalConstellations
         {
             public const string PLUGIN_GUID = "com.github.darmuh.LethalConstellations";
             public const string PLUGIN_NAME = "LethalConstellations";
-            public const string PLUGIN_VERSION = "0.2.3";
+            public const string PLUGIN_VERSION = "0.2.5";
         }
-        
+
         internal static ManualLogSource Log;
 
         //Compatibility
-        public bool LobbyCompat = false;
-        public bool LethalConfig = false;
         public bool LethalMoonUnlocks = false;
         public bool LethalNetworkAPI = false;
         public Terminal Terminal;
@@ -38,7 +34,7 @@ namespace LethalConstellations
         {
             instance = this;
             Log = base.Logger;
-            Log.LogInfo((object)$"{PluginInfo.PLUGIN_NAME} is loading with version {PluginInfo.PLUGIN_VERSION}!");
+            Log.LogInfo($"{PluginInfo.PLUGIN_NAME} is loading with version {PluginInfo.PLUGIN_VERSION}!");
             Subscribers.Subscribe();
             Configuration.GeneratedConfig = new ConfigFile(Path.Combine(Paths.ConfigPath, $"{PluginInfo.PLUGIN_NAME}_Generated.cfg"), true);
             Configuration.BindConfigSettings();

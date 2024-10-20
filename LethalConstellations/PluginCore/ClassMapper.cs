@@ -8,7 +8,7 @@ namespace LethalConstellations.PluginCore
     {
         public string consName;
         public List<string> constelMoons = [];
-        public List<string> stayHiddenMoons = []; 
+        public List<string> stayHiddenMoons = [];
         public bool buyOnce;
         public int constelPrice;
         public string defaultMoon;
@@ -32,17 +32,17 @@ namespace LethalConstellations.PluginCore
             this.isLocked = false;
         }
 
-        internal static void UpdateCNames(List<ClassMapper> constellations, Dictionary<string,string> fixedNames)
+        internal static void UpdateCNames(List<ClassMapper> constellations, Dictionary<string, string> fixedNames)
         {
             if (constellations.Count < 1 || fixedNames.Count < 1)
                 return;
-                foreach (KeyValuePair<string, string> fixer in fixedNames)
+            foreach (KeyValuePair<string, string> fixer in fixedNames)
+            {
+                if (CheckForAndUpdateCName(constellations, fixer.Key, fixer.Value))
                 {
-                    if(CheckForAndUpdateCName(constellations, fixer.Key, fixer.Value))
-                    {
-                        Plugin.Spam($"CheckForAndUpadteCName success");
-                    }
+                    Plugin.Spam($"CheckForAndUpadteCName success");
                 }
+            }
         }
 
         public static bool TryGetConstellation(List<ClassMapper> constellations, string query, out ClassMapper outConst)
@@ -79,9 +79,9 @@ namespace LethalConstellations.PluginCore
                 return false;
             }
 
-            foreach(ClassMapper constellation in constellations)
+            foreach (ClassMapper constellation in constellations)
             {
-                if(constellation.consName == query)
+                if (constellation.consName == query)
                 {
                     constellation.consName = newValue;
                     Plugin.Spam($"bad name {query} updated to {constellation.consName}");
@@ -99,14 +99,14 @@ namespace LethalConstellations.PluginCore
             if (Collections.ConstellationsOTP.Count == 0)
                 return;
 
-            foreach(string item in Collections.ConstellationsOTP)
+            foreach (string item in Collections.ConstellationsOTP)
             {
-                if(TryGetConstellation(Collections.ConstellationStuff, item, out ClassMapper outConst))
+                if (TryGetConstellation(Collections.ConstellationStuff, item, out ClassMapper outConst))
                 {
                     if (outConst == null)
                         continue;
-                    
-                    if(outConst.buyOnce && !outConst.oneTimePurchase)
+
+                    if (outConst.buyOnce && !outConst.oneTimePurchase)
                         outConst.oneTimePurchase = true;
 
                     Plugin.Spam($"{outConst.consName} detected as unlocked from save file");

@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.2.5]
+ - Fixed fatal error during automated system creating fauxkeywords from LLL content tags which broke the terminal
+ - Added logic to skip content tags that are shorter than 3 characters or contain spaces
+ - Fixed an issue I noticed with clientside testing that threw an error when loading in and updating the current constellation.
+ - General code cleanup and update to latest version of OpenLib
+
+## [0.2.4]
+ - Updated for latest version of OpenLib
+ - Fixed issue introduced with latest Openlib update that broke some portions of constellation handling.
+ - Fixed issue where constellation names could not have special characters in them.
+ - Fixed issue with shortcut config item being parsed with the wrong character.
+ - General info command fixes
+ - Added new FauxKeywords option to set your constellation names to whatever you want.
+	- These 'keywords' will only work from within the constellations menu.
+ - Config items generated after lobby load will now show within the LethalConfig menu.
+ - Added button to generate webconfig page which can be used to edit the config in a webpage.
+	- These will be located within your Bepinex/config/webconfigs folder
+ - Added button to apply config codes that you generate from your webconfig pages.
+ - Updated default config handling to use LLL tags with Faux Keywords.
+ - Added constellations as compatible nouns to route, so you can type route [constellation-name] and it will route you to that constellation.
+
 ## [0.2.3]
  - Fixed issue where current constellation could not be calculated when loading a save that was last at the company moon.
 	- With networkapi present, this variable will be tracked in your gamesave.

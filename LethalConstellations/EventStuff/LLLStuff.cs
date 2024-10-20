@@ -1,22 +1,22 @@
 ﻿using BepInEx.Configuration;
+using LethalConstellations.Compat;
 using LethalConstellations.ConfigManager;
 using LethalConstellations.PluginCore;
 using LethalLevelLoader;
 using OpenLib.Common;
 using System.Collections.Generic;
-using static OpenLib.ConfigManager.ConfigSetup;
+using System.Linq;
 using static LethalConstellations.PluginCore.Collections;
-using Random = UnityEngine.Random;
-using UnityEngine;
-using LethalConstellations.Compat;
-using System;
+using static OpenLib.ConfigManager.ConfigSetup;
+using static OpenLib.ConfigManager.WebHelper;
+using Random = System.Random;
 
 
 namespace LethalConstellations.EventStuff
 {
     internal class LLLStuff
     {
-        internal static bool usingRiskTags = false;
+        internal static bool usingTags = false;
         public static void LLLSetup()
         {
             Start();
@@ -27,24 +27,24 @@ namespace LethalConstellations.EventStuff
                 ConstellationsList = CommonStringStuff.GetKeywordsPerConfigItem(Configuration.ConstellationList.Value, ',');
 
             Plugin.Spam("ConstellationList:");
-            foreach(string item in ConstellationsList)
+            foreach (string item in ConstellationsList)
                 Plugin.Spam(item);
 
             List<string> ignoreList = CommonStringStuff.GetKeywordsPerConfigItem(Configuration.IgnoreList.Value, ',');
-            ignoreList = ignoreList.ConvertAll(s  => s.ToLower());
+            ignoreList = ignoreList.ConvertAll(s => s.ToLower());
             Plugin.Spam("list created");
 
             foreach (string name in ConstellationsList)
             {
-                ConfigEntry<string> menuText = MakeString(Configuration.GeneratedConfig, $"Constellation {name}", $"{name} menuText", $"Route to {ConstellationWord} [name][~t]$[price][~n]Default Moon: [defaultmoon] [currentweather] [optionals]", "text displayed for this constellation's menu item");
+                ConfigEntry<string> menuText = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} menuText", $"Route to {ConstellationWord} [name][~t]$[price][~n]Default Moon: [defaultmoon] [currentweather] [optionals]", $"The text displayed for this {ConstellationWord}'s menu item");
 
-                ConfigEntry<string> shortCuts = MakeString(Configuration.GeneratedConfig, $"Constellation {name}", $"{name} shortcuts", "", $"Specify a list of shortcuts to use for routing to the {name} constellation.\nEach shortcut keyword is separated by a ','");
+                ConfigEntry<string> shortCuts = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} shortcuts", "", $"Specify a list of shortcuts to use for routing to the {name} {ConstellationWord}.\nEach shortcut keyword is separated by a ','");
 
-                ConfigEntry<bool> isHiding = MakeBool(Configuration.GeneratedConfig, $"Constellation {name}", $"{name} isHidden", false, "Enable this to hide this constellation from the constellation listing");
+                ConfigEntry<bool> isHiding = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} isHidden", false, $"Enable this to hide this {ConstellationWord} from the constellation listing");
 
-                ConfigEntry<bool> canGoCompany = MakeBool(Configuration.GeneratedConfig, $"Constellation {name}", $"{name} canRouteCompany", true, "Enable this to allow this constellation to route to the company moon");
+                ConfigEntry<bool> canGoCompany = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} canRouteCompany", true, $"Enable this to allow this {ConstellationWord} to route to the company moon");
 
-                ConfigEntry<bool> buyOnce = MakeBool(Configuration.GeneratedConfig, $"Constellation {name}", $"{name} One-Time Purchase", false, "Enable this to allow routing to this constellation for free after paying for it once");
+                ConfigEntry<bool> buyOnce = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} One-Time Purchase", false, $"Enable this to allow routing to this {ConstellationWord} for free after paying for it once");
 
                 ClassMapper constClass = new(name);
                 constClass.menuText = menuText.Value;
@@ -55,7 +55,9 @@ namespace LethalConstellations.EventStuff
 
                 if (Configuration.ConstellationSpecificInfoNodes.Value)
                 {
-                    ConfigEntry<string> infoText = MakeString(Configuration.GeneratedConfig, $"Constellation {name}", $"{name} infoText", $"ConstellationWord - {name}\n\n\nThis constellation contains moons in it. Route to it and find out which!\r\n\r\n", "text that displays with the info command for this constellation");
+                    ConfigEntry<string> infoText = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} infoText", $"{ConstellationWord} - {name}\n\n\nThis [ConstellationWord] contains moons in it. Route to it and find out which!\r\n\r\n", $"The text that displays with the info command for this {ConstellationWord}");
+                    if (infoText.Value.Contains("[ConstellationWord]"))
+                        infoText.Value = infoText.Value.Replace("[ConstellationWord]", ConstellationWord);
                     constClass.infoText = infoText.Value;
                 }
 
@@ -71,42 +73,52 @@ namespace LethalConstellations.EventStuff
 
             Plugin.Spam($"ConfigCount: {Configuration.GeneratedConfig.Count}");
             Configuration.GeneratedConfig.Save();
+
             RemoveOrphanedEntries(Configuration.GeneratedConfig);
             LethalConfigStuff();
         }
 
         internal static void LethalConfigStuff()
         {
-            if(Plugin.instance.LethalConfig)
-                LethalConfigCompat.QueueConfig(Configuration.GeneratedConfig);
+            if (!OpenLib.Plugin.instance.LethalConfig)
+                return;
+
+            LConfig.QueueConfig(Configuration.GeneratedConfig);
+            //LConfig.QueueConfig(LethalLevelLoader.Tools.ConfigLoader.configFile);
         }
 
         internal static List<string> GetDefaultConsellations()
         {
-            List<string> fail = new() { "Alpha", "Bravo", "Charlie" };
-            List<string> ignore = new() { "safe", "corruption detected", "???"};
-            List<string> tagsfromLLL = new();
-            if(PatchedContent.ExtendedLevels.Count < 1)
+            List<string> fail = ["Alpha", "Bravo", "Charlie"];
+            List<string> ignore = ["safe", "corruption detected", "???"];
+            List<string> tagsfromLLL = [];
+            if (PatchedContent.ExtendedLevels.Count < 1)
                 return fail;
 
             foreach (ExtendedLevel level in PatchedContent.ExtendedLevels)
             {
                 Plugin.Spam($"---------------- Checking {level.NumberlessPlanetName} tags ----------------");
 
-                if (ignore.Contains(level.SelectableLevel.riskLevel.ToLower()))
-                    continue;
+                string constellation;
+                if (!Configuration.ConstellationsUseFauxWords.Value)
+                {
+                    if (ignore.Contains(level.SelectableLevel.riskLevel.ToLower()))
+                        continue;
 
-                string constellation = $"{level.SelectableLevel.riskLevel} Tier";
+                    constellation = $"{level.SelectableLevel.riskLevel} Tier";
+                }
+                else
+                    constellation = GetFirstUniqueTag(level);
 
                 if (!tagsfromLLL.Contains(constellation))
                 {
                     tagsfromLLL.Add(constellation);
                 }
-                        
+
                 Plugin.Spam("---------------- End of checks ----------------");
             }
 
-            usingRiskTags = true;
+            usingTags = true;
             return tagsfromLLL;
         }
 
@@ -116,21 +128,58 @@ namespace LethalConstellations.EventStuff
                 return "default";
             else
             {
-                int index = Random.Range(0, constList.Count - 1);
+                Random rand = new();
+                int index = rand.Next(0, constList.Count);
                 return constList[index];
-            }       
+            }
         }
 
-        internal static string GetLevelRisk(ExtendedLevel level, List<string> constList)
+        private static bool DoesLevelHaveTag(ExtendedLevel level, string query)
+        {
+            foreach (ContentTag tag in level.ContentTags)
+            {
+                if (tag.contentTagName.ToLower() == query.ToLower())
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static string GetFirstUniqueTag(ExtendedLevel level)
+        {
+            List<string> ignore = ["free", "paid", "custom", "vanilla", "company"];
+
+            foreach (ContentTag tag in level.ContentTags)
+            {
+                if (ignore.Contains(tag.contentTagName.ToLower())) //ignore above list items
+                    continue;
+                if(tag.contentTagName.Length < 3) //ensure it meets the minimum for fauxkeywords
+                    continue;
+                if(tag.contentTagName.Contains(' ')) //skip tags with spaces
+                    continue;
+
+                return tag.contentTagName;
+            }
+
+            return "Unknown";
+        }
+
+        internal static string GetTagInfo(ExtendedLevel level, List<string> constList)
         {
             string fail = GetDefaultCName(constList);
 
-            //List<string> ignore = new() { "company", "free", "paid", "custom" };
-
             foreach (string constel in constList)
             {
-                if (constel.Contains(level.SelectableLevel.riskLevel))
-                    return constel;
+                if (Configuration.ConstellationsUseFauxWords.Value)
+                {
+                    if (DoesLevelHaveTag(level, constel))
+                        return constel;
+                }
+                else
+                {
+                    if (constel.Contains(level.SelectableLevel.riskLevel))
+                        return constel;
+                }
             }
 
             if (constList.Contains("Unknown Tier"))
@@ -142,20 +191,26 @@ namespace LethalConstellations.EventStuff
         internal static void SetDefaultMoon(List<ClassMapper> allConstell)
         {
             Plugin.Spam("Getting Default Moons/Prices");
-            foreach(ClassMapper constel in allConstell)
+            foreach (ClassMapper constel in allConstell)
             {
                 Plugin.Spam($"Setting defaults for {constel.consName}");
 
                 string defMoon = GetRandomDefault(constel);
                 int defPrice = GetMoonPrice(defMoon);
+                ConfigEntry<string> defaultMoon;
 
-                ConfigEntry<string> defaultMoon = MakeString(Configuration.GeneratedConfig, $"Constellation {constel.consName}", $"{constel.consName} defaultMoon", defMoon, "default moon to route to when selecting this constellation");
+                Plugin.Spam($"constelMoons - {constel.constelMoons.Count}");
+
+                //not making clamped string to avoid issues with web config creation
+
+                defaultMoon = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {constel.consName}", $"{constel.consName} defaultMoon", defMoon, $"Default moon to route to when selecting this {ConstellationWord}");
+
                 constel.defaultMoon = defaultMoon.Value;
                 Plugin.Spam($"Default Moon for {constel.consName} set to {defaultMoon.Value}");
 
                 constel.defaultMoonLevel = MoonStuff.GetExtendedLevel(constel.defaultMoon);
 
-                if(constel.defaultMoonLevel == null)
+                if (constel.defaultMoonLevel == null)
                 {
                     Plugin.WARNING("defaultMoonLevel was NULL due to invalid config item.\n\nSetting default moon to new random and updating config item!");
                     string newDef = GetRandomDefault(constel);
@@ -165,7 +220,7 @@ namespace LethalConstellations.EventStuff
 
                 }
 
-                ConfigEntry<int> constellationPrice = MakeClampedInt(Configuration.GeneratedConfig, $"Constellation {constel.consName}", $"{constel.consName} constellationPrice", defPrice, $"Set the price to route to this constellation and it's defaultMoon", 0, 9999);
+                ConfigEntry<int> constellationPrice = MakeClampedInt(Configuration.GeneratedConfig, $"{ConstellationWord} {constel.consName}", $"{constel.consName} constellationPrice", defPrice, $"Set the price to route to this {ConstellationWord} and it's defaultMoon", 0, 9999);
 
                 constel.constelPrice = constellationPrice.Value;
 
@@ -193,28 +248,39 @@ namespace LethalConstellations.EventStuff
 
                 ConfigEntry<int> levelPrice = MakeClampedInt(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} Price", extendedLevel.RoutePrice, "Set a custom route price for this moon (should autopopulate with the correct default price)", 0, 99999);
 
-                ConfigEntry<bool> stayHiding = MakeBool(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} Stay Hidden", extendedLevel.IsRouteHidden, $"Set this to true to keep {extendedLevel.NumberlessPlanetName} hidden even when you're in it's constellation");
+                ConfigEntry<bool> stayHiding = MakeBool(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} Stay Hidden", extendedLevel.IsRouteHidden, $"Set this to true to keep {extendedLevel.NumberlessPlanetName} hidden even when you're in it's {ConstellationWord}");
 
-                if (usingRiskTags)
+                if (usingTags)
                 {
-                    string tagConstellation = GetLevelRisk(extendedLevel, ConstellationsList);
-                    ConfigEntry<string> levelToConstellation = MakeString(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} Constellation", tagConstellation, $"Specify which constellation {extendedLevel.NumberlessPlanetName} belongs to\nShould match an item from [ConstellationList]");
+                    string tagConstellation = GetTagInfo(extendedLevel, ConstellationsList);
+                    ConfigEntry<string> levelToConstellation = MakeClampedString(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} {ConstellationWord}", tagConstellation, $"Specify which {ConstellationWord} {extendedLevel.NumberlessPlanetName} belongs to.\nClamped to what is set in [ConstellationList] (default listing)", new AcceptableValueList<string>([.. ConstellationsList]));
                     AddToConstelMoons(extendedLevel.NumberlessPlanetName, levelToConstellation.Value, stayHiding.Value);
                 }
                 else
                 {
-                    ConfigEntry<string> levelToConstellation = MakeString(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} Constellation", defaultValue, $"Specify which constellation {extendedLevel.NumberlessPlanetName} belongs to\nShould match an item from [ConstellationList]\nIf adding to multiple constellations, separate each constellation by a comma");
+                    ConfigEntry<string> levelToConstellation = MakeString(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} {ConstellationWord}", defaultValue, $"Specify which {ConstellationWord} {extendedLevel.NumberlessPlanetName} belongs to.\nShould match an item from [ConstellationList]\nIf adding to multiple {ConstellationsWord}, separate each {ConstellationWord} by a comma.\nWill be autoset to a random {ConstellationWord} if not matching one.");
 
                     if (levelToConstellation.Value.Contains(","))
                     {
                         List<string> constellationList = CommonStringStuff.GetKeywordsPerConfigItem(levelToConstellation.Value, ',');
-                        foreach(string conName in constellationList)
+                        foreach (string conName in constellationList)
                         {
                             AddToConstelMoons(extendedLevel.NumberlessPlanetName, conName, stayHiding.Value);
-                        }    
+                        }
                     }
                     else
-                        AddToConstelMoons(extendedLevel.NumberlessPlanetName, levelToConstellation.Value, stayHiding.Value);
+                    {
+                        if (ConstellationsList.Any(c => c.ToLower() == levelToConstellation.Value.ToLower()))
+                            AddToConstelMoons(extendedLevel.NumberlessPlanetName, levelToConstellation.Value, stayHiding.Value);
+                        else
+                        {
+                            Random rand = new();
+                            int chosen = rand.Next(0, ConstellationsList.Count);
+                            levelToConstellation.Value = ConstellationsList[chosen];
+                            AddToConstelMoons(extendedLevel.NumberlessPlanetName, levelToConstellation.Value, stayHiding.Value);
+                        }
+                    }
+
                 }
 
                 MoonPrices.Add(extendedLevel, levelPrice.Value);
@@ -226,12 +292,12 @@ namespace LethalConstellations.EventStuff
             if (ConstellationStuff.Count < 0)
                 return;
 
-            foreach(ClassMapper constel in ConstellationStuff)
+            foreach (ClassMapper constel in ConstellationStuff)
             {
-                if(constel.consName == cName && !constel.constelMoons.Contains(newMoon))
+                if (constel.consName == cName && !constel.constelMoons.Contains(newMoon))
                 {
                     constel.constelMoons.Add(newMoon);
-                    if(stayHidden)
+                    if (stayHidden)
                         constel.stayHiddenMoons.Add(newMoon);
                     Plugin.Spam($"adding {newMoon} to {cName} / stayHidden: {stayHidden}");
                 }
@@ -241,7 +307,7 @@ namespace LethalConstellations.EventStuff
         //check for configitem, no out
         internal static bool CheckForConfigName(string configName)
         {
-            foreach(ConfigDefinition item in Plugin.instance.Config.Keys)
+            foreach (ConfigDefinition item in Plugin.instance.Config.Keys)
             {
                 if (item.Key == configName)
                     return true;
@@ -257,7 +323,7 @@ namespace LethalConstellations.EventStuff
 
             foreach (KeyValuePair<ExtendedLevel, int> moon in MoonPrices)
             {
-                if(moon.Key.NumberlessPlanetName.ToLower() == moonName.ToLower())
+                if (moon.Key.NumberlessPlanetName.ToLower() == moonName.ToLower())
                     return moon.Value;
             }
 
@@ -270,7 +336,8 @@ namespace LethalConstellations.EventStuff
             if (constellation.constelMoons.Count == 0)
                 return "";
 
-            int rand = Random.Range(0, constellation.constelMoons.Count - 1);
+            Random ran = new();
+            int rand = ran.Next(0, constellation.constelMoons.Count);
             return constellation.constelMoons[rand];
         }
     }

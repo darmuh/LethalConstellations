@@ -1,9 +1,9 @@
-﻿using LethalLevelLoader;
+﻿using LethalConstellations.Compat;
+using LethalConstellations.ConfigManager;
+using LethalConstellations.EventStuff;
+using LethalLevelLoader;
 using System.Collections.Generic;
 using static LethalConstellations.PluginCore.Collections;
-using LethalConstellations.EventStuff;
-using LethalConstellations.Compat;
-using LethalConstellations.ConfigManager;
 
 namespace LethalConstellations.PluginCore
 {
@@ -33,6 +33,8 @@ namespace LethalConstellations.PluginCore
                 StartOfRound.Instance.ChangeLevelServerRpc(newLevelID, newCreds);
                 gotConstellation = false;
 
+                if (getPrice > 0)
+                    Plugin.instance.Terminal.PlayTerminalAudioServerRpc(0);
                 NewEvents.RouteConstellationSuccess.Invoke(); //for other mods to subscribe to successful route
 
                 OneTimePurchaseCheck(constellationName);
@@ -83,7 +85,7 @@ namespace LethalConstellations.PluginCore
                 ResetConstVars();
                 failText = "Ship is currently in motion, unable to change routing at this time!\r\n\r\n";
                 return true;
-            }  
+            }
 
             if (!StartOfRound.Instance.inShipPhase)
             {
@@ -105,16 +107,34 @@ namespace LethalConstellations.PluginCore
                 failText = $"Unable to determine terminal command given\r\n\r\n";
                 return true;
             }
-                
+
 
             Plugin.Spam("Getting screen text");
             string screen = Plugin.instance.Terminal.screenText.text.Substring(Plugin.instance.Terminal.screenText.text.Length - Plugin.instance.Terminal.textAdded);
+            if (screen.ToLower().StartsWith("route"))
+                screen = screen.Substring(5).TrimStart();
+            else if(screen.ToLower().StartsWith("info"))
+            {
+                screen = screen.Substring(4).TrimStart();
+                if (ClassMapper.TryGetConstellation(ConstellationStuff, screen, out ClassMapper infoConst))
+                {
+                    failText = $"{infoConst.infoText}\r\n";
+                    ResetConstVars();
+                    return true;
+                }
+                else
+                {
+                    ResetConstVars();
+                    failText = $"Unable to determine terminal command given\r\n\r\n";
+                    return true;
+                }
+            }
             Plugin.Spam(screen);
             Plugin.Spam($"{ConstellationStuff.Count}");
-            if(ClassMapper.TryGetConstellation(ConstellationStuff, screen, out ClassMapper outConst))
+            if (ClassMapper.TryGetConstellation(ConstellationStuff, screen, out ClassMapper outConst))
             {
                 Plugin.Spam($"Current Constellation: {CurrentConstellation}");
-                if(CurrentConstellation == outConst.consName)
+                if (CurrentConstellation == outConst.consName)
                 {
                     failText = $"You are already located at {ConstellationWord} - {CurrentConstellation}...\r\n\r\n";
                     ResetConstVars();
@@ -130,7 +150,7 @@ namespace LethalConstellations.PluginCore
                     }
                 }
 
-                if(outConst.isLocked)
+                if (outConst.isLocked)
                 {
                     ResetConstVars();
                     failText = $"Unable to travel to {outConst.consName}. {ConstellationWord} is locked!\r\n\r\n";
@@ -140,7 +160,7 @@ namespace LethalConstellations.PluginCore
 
             failText = "";
             return false;
-                
+
         }
 
         internal static int GetConstPrice(string constName)
@@ -178,7 +198,7 @@ namespace LethalConstellations.PluginCore
                         return;
                     else
                     {
-                        if(!item.oneTimePurchase)
+                        if (!item.oneTimePurchase)
                         {
                             Plugin.Spam("Updating oneTimePurchase to true");
                             item.oneTimePurchase = true;
@@ -230,7 +250,7 @@ namespace LethalConstellations.PluginCore
             foreach (ExtendedLevel extendedLevel in PatchedContent.ExtendedLevels)
             {
                 Plugin.Spam($"checking {extendedLevel.NumberlessPlanetName} vs {levelName}");
-                if(extendedLevel.NumberlessPlanetName.ToLower() == levelName.ToLower())
+                if (extendedLevel.NumberlessPlanetName.ToLower() == levelName.ToLower())
                 {
                     return extendedLevel.SelectableLevel.levelID;
                 }
@@ -244,7 +264,7 @@ namespace LethalConstellations.PluginCore
             if (!enableMoons)
             {
                 Plugin.Spam($"Disabling all moons in: {thisConstellation.consName}");
-                foreach(string name in thisConstellation.constelMoons)
+                foreach (string name in thisConstellation.constelMoons)
                 {
                     AdjustExtendedLevel(name, thisConstellation, false);
                 }
@@ -279,10 +299,10 @@ namespace LethalConstellations.PluginCore
                     {
                         Plugin.Spam($"{extendedLevel.NumberlessPlanetName} should be ENABLED");
                         extendedLevel.IsRouteLocked = false;
-                        if(!myConst.stayHiddenMoons.Contains(extendedLevel.NumberlessPlanetName) && extendedLevel.NumberlessPlanetName.ToLower() != CompanyMoon.ToLower())
+                        if (!myConst.stayHiddenMoons.Contains(extendedLevel.NumberlessPlanetName) && extendedLevel.NumberlessPlanetName.ToLower() != CompanyMoon.ToLower())
                             extendedLevel.IsRouteHidden = false;
                         extendedLevel.LockedRouteNodeText = "";
-                    }      
+                    }
                 }
             }
         }
@@ -297,7 +317,7 @@ namespace LethalConstellations.PluginCore
 
             Plugin.Spam($"Adjusting to {constellationName} from {levelName}");
 
-            if(levelName.ToLower() == CompanyMoon.ToLower() && ClassMapper.TryGetConstellation(ConstellationStuff, constellationName, out ClassMapper conClass))
+            if (levelName.ToLower() == CompanyMoon.ToLower() && ClassMapper.TryGetConstellation(ConstellationStuff, constellationName, out ClassMapper conClass))
             {
                 AdjustExtendedLevel(conClass.defaultMoon, conClass, conClass.canRouteCompany);
                 return;
@@ -306,7 +326,7 @@ namespace LethalConstellations.PluginCore
             //ConstellationsToMoons.Add(extendedLevel.NumberlessPlanetName, levelToConstellation.Value);
             foreach (ClassMapper item in ConstellationStuff)
             {
-                if(item.consName == constellationName)
+                if (item.consName == constellationName)
                 {
                     UpdateLevelList(item, true);
 
@@ -318,7 +338,7 @@ namespace LethalConstellations.PluginCore
                     {
                         AdjustExtendedLevel(CompanyMoon, item, false);
                     }
-                }    
+                }
                 else
                     UpdateLevelList(item, false);
             }
@@ -331,7 +351,7 @@ namespace LethalConstellations.PluginCore
 
         internal static void GetCurrentConstellation(string levelName)
         {
-            if(levelName.Length == 0)
+            if (levelName.Length == 0)
             {
                 Plugin.WARNING("Invalid levelName at GetCurrentConstellation");
                 return;
@@ -341,7 +361,7 @@ namespace LethalConstellations.PluginCore
             {
                 DefaultConstellation();
                 return;
-            }    
+            }
 
             //ConstellationsToMoons.Add(extendedLevel.NumberlessPlanetName, levelToConstellation.Value);
             foreach (ClassMapper item in ConstellationStuff)
@@ -358,16 +378,24 @@ namespace LethalConstellations.PluginCore
 
         internal static void DefaultConstellation()
         {
-            if (LevelManager.CurrentExtendedLevel.NumberlessPlanetName.ToLower() == CompanyMoon.ToLower() && CurrentConstellation.Length < 1)
+            string currentLevel;
+            if (LevelManager.CurrentExtendedLevel == null)
+            {
+                currentLevel = ExtendedLevel.GetNumberlessPlanetName(StartOfRound.Instance.currentLevel);
+            }
+            else
+                currentLevel = LevelManager.CurrentExtendedLevel.NumberlessPlanetName;
+
+            if (currentLevel.ToLower() == CompanyMoon.ToLower() && CurrentConstellation.Length < 1)
             {
                 Plugin.WARNING("Current save is located at the Company! Setting to default!");
-                if(TryGetDefaultConstellation(out ClassMapper theConst))
+                if (TryGetDefaultConstellation(out ClassMapper theConst))
                 {
                     if (theConst.canRouteCompany)
                     {
                         AdjustToNewConstellation(theConst.defaultMoon, theConst.consName);
                         return;
-                    }     
+                    }
                 }
 
                 Plugin.WARNING("Unable to load default constellation from config item. Setting to first contellation in list.");

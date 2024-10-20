@@ -17,7 +17,7 @@ namespace LethalConstellations.PluginCore
                 LevelStuff.DefaultConstellation(); //set current constellation
                 return;
             }
-                
+
 
             ConstellationsOTP.Clear();
             ClassMapper.ResetUnlockedConstellations(ConstellationStuff);

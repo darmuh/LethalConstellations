@@ -13,7 +13,7 @@ namespace LethalConstellations.PluginCore
             if (MoonPrices.Count < 1 || !Configuration.ModifyMoonPrices.Value)
                 return;
 
-            foreach (KeyValuePair<ExtendedLevel,int> moon in MoonPrices)
+            foreach (KeyValuePair<ExtendedLevel, int> moon in MoonPrices)
             {
                 Plugin.Spam($"Modifying {moon.Key.NumberlessPlanetName} price from {moon.Key.RoutePrice} to {moon.Value}");
                 moon.Key.RoutePrice = moon.Value;
@@ -38,16 +38,16 @@ namespace LethalConstellations.PluginCore
         {
             price = -1;
 
-            if(moonPrices.Count == 0)
+            if (moonPrices.Count == 0)
                 return false;
 
-            foreach(KeyValuePair<string, int> pair in moonPrices)
+            foreach (KeyValuePair<string, int> pair in moonPrices)
             {
                 if (pair.Key.ToLower() == levelName.ToLower())
                 {
                     price = pair.Value;
                     return true;
-                }   
+                }
             }
 
             return false;
