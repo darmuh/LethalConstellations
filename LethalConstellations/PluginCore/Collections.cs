@@ -6,6 +6,8 @@ namespace LethalConstellations.PluginCore
     public class Collections
     {
         internal static List<string> ConstellationsList = [];
+        internal static Dictionary<string, string> ManualSetupList = [];
+        internal static System.Random Rand = new();
 
         public static List<ClassMapper> ConstellationStuff = []; //public for access from other mods
 

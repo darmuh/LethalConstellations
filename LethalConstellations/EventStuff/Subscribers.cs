@@ -1,4 +1,5 @@
 ﻿using LethalConstellations.Compat;
+using LethalConstellations.ConfigManager;
 using LethalConstellations.PluginCore;
 using LethalLevelLoader;
 using OpenLib.Events;
@@ -16,6 +17,8 @@ namespace LethalConstellations.EventStuff
             EventManager.StartOfRoundChangeLevel.AddListener(OnLevelChange);
             //EventManager.OnClientConnect.AddListener(OnClientConnected);
             EventManager.GameNetworkManagerStart.AddListener(OnStartup);
+            EventManager.StartOfRoundStart.AddListener(NewLobbyStuff);
+            EventManager.ShipReset.AddListener(NewLobbyStuff);
             LethalLevelLoader.Plugin.onSetupComplete += LLLStuff.LLLSetup;
         }
 
@@ -23,6 +26,12 @@ namespace LethalConstellations.EventStuff
         {
             Plugin.instance.Terminal = instance;
             Plugin.MoreLogs($"Setting Plugin.instance.Terminal");
+        }
+
+        public static void NewLobbyStuff()
+        {
+            if (GameNetworkManager.Instance.isHostingGame)
+                InitHostStuff();
         }
 
         public static void OnLoadNode(TerminalNode node)

@@ -4,11 +4,11 @@ using LethalConstellations.ConfigManager;
 using LethalConstellations.PluginCore;
 using LethalLevelLoader;
 using OpenLib.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static LethalConstellations.PluginCore.Collections;
 using static OpenLib.ConfigManager.ConfigSetup;
-using static OpenLib.ConfigManager.WebHelper;
 using Random = System.Random;
 
 
@@ -24,15 +24,56 @@ namespace LethalConstellations.EventStuff
             if (Configuration.ConstellationList.Value.Length < 1)
                 ConstellationsList = GetDefaultConsellations();
             else
+            {
                 ConstellationsList = CommonStringStuff.GetKeywordsPerConfigItem(Configuration.ConstellationList.Value, ',');
+                ConstellationsList.RemoveAll(x => x.Length < 1);
+
+                if (Configuration.ManualSetupListing.Value.Length > 0)
+                {
+                    List<string> pairs = [.. Configuration.ManualSetupListing.Value.Split(';')];
+                    
+                    foreach (string item in pairs)
+                    {
+                        List<string> items = [.. item.Split(':')];
+                        string keyVal = "FailedToParseConsName";
+                        for (int x = 0; x < items.Count; x++)
+                        {
+                            if (!items[x].Contains(','))
+                            {
+                                keyVal = items[x];
+                                continue;
+                            }
+
+                            List<string> allValues = [.. items[x].Split(',')];
+                            for (int i = 0; i < allValues.Count; i++)
+                            {
+                                //allvalues are moons, keyVal should be last parsed constellation name
+                                ManualSetupList.Add(allValues[i], keyVal); //moon, constellation
+                            }
+                        }
+                        
+                    }
+
+
+                }
+            }
+
+            if (ConstellationsList.Count != ConstellationsList.Distinct(StringComparer.CurrentCultureIgnoreCase).Count())
+                Plugin.WARNING($"REMOVING DUPLICATE CONSTELLATION NAMES!!\nOriginal [ {ConstellationsList.Count} ]\nDistinct [ {ConstellationsList.Distinct(StringComparer.CurrentCultureIgnoreCase).Count()} ]");
+
+            ConstellationsList = [.. ConstellationsList.Distinct(StringComparer.CurrentCultureIgnoreCase)]; //remove duplicates that would throw errors
 
             Plugin.Spam("ConstellationList:");
             foreach (string item in ConstellationsList)
                 Plugin.Spam(item);
 
+            Plugin.Spam("ManualSetupList:");
+            foreach(KeyValuePair<string,string> pair in ManualSetupList)
+                Plugin.Spam($"{pair.Key} - {pair.Value}");
+
             List<string> ignoreList = CommonStringStuff.GetKeywordsPerConfigItem(Configuration.IgnoreList.Value, ',');
             ignoreList = ignoreList.ConvertAll(s => s.ToLower());
-            Plugin.Spam("list created");
+            Plugin.Spam("ignoreList created");
 
             foreach (string name in ConstellationsList)
             {
@@ -84,7 +125,6 @@ namespace LethalConstellations.EventStuff
                 return;
 
             LConfig.QueueConfig(Configuration.GeneratedConfig);
-            //LConfig.QueueConfig(LethalLevelLoader.Tools.ConfigLoader.configFile);
         }
 
         internal static List<string> GetDefaultConsellations()
@@ -122,16 +162,27 @@ namespace LethalConstellations.EventStuff
             return tagsfromLLL;
         }
 
-        internal static string GetDefaultCName(List<string> constList)
+        internal static string GetDefaultCName(List<string> constList, string levelName = "")
         {
             if (constList.Count < 1)
                 return "default";
-            else
+            else if(ManualSetupList.Count > 0 && levelName.Length > 0) //moon,constellation
             {
-                Random rand = new();
-                int index = rand.Next(0, constList.Count);
-                return constList[index];
+                Plugin.Spam($"Attempting to get MANUAL constellation setup for [ {levelName} ]");
+                if (ManualSetupList.TryGetValue(levelName.ToLower(), out string consName))
+                    return consName;
+                else
+                    return IndexRandom(constList);
             }
+            else
+                return IndexRandom(constList);
+        }
+
+        private static string IndexRandom(List<string> listing)
+        {
+            Plugin.Spam($"Setting IndexRandom string from given listing!");
+            int index = Rand.Next(0, listing.Count);
+            return listing[index];
         }
 
         private static bool DoesLevelHaveTag(ExtendedLevel level, string query)
@@ -166,7 +217,7 @@ namespace LethalConstellations.EventStuff
 
         internal static string GetTagInfo(ExtendedLevel level, List<string> constList)
         {
-            string fail = GetDefaultCName(constList);
+            string fail = GetDefaultCName(constList, level.NumberlessPlanetName);
 
             foreach (string constel in constList)
             {
@@ -233,18 +284,20 @@ namespace LethalConstellations.EventStuff
         {
             foreach (ExtendedLevel extendedLevel in extendedLevels)
             {
-                string defaultValue = GetDefaultCName(ConstellationsList);
-                Plugin.Spam(defaultValue);
-
-                if (ignoreList.Contains(extendedLevel.NumberlessPlanetName.ToLower()))
+                if(extendedLevel == null) //skip null extendedLevel (this should never happen but just in case lol)
                     continue;
 
-                Plugin.Spam("not in ignoreList");
-
-                if (extendedLevel.NumberlessPlanetName.ToLower() == CompanyMoon.ToLower())
+                if (extendedLevel.NumberlessPlanetName.Length < 1) //skip too short name
                     continue;
 
-                Plugin.Spam("not the company moon");
+                if (ignoreList.Contains(extendedLevel.NumberlessPlanetName.ToLower())) //ignore moons specified by user config
+                    continue;
+
+                if (extendedLevel.NumberlessPlanetName.ToLower() == CompanyMoon.ToLower()) //ignore company moon
+                    continue;
+
+                string defaultValue = GetDefaultCName(ConstellationsList, extendedLevel.NumberlessPlanetName);
+                Plugin.Spam("extendedLevel.NumberlessPlanetName default constellation set to - " + defaultValue);
 
                 ConfigEntry<int> levelPrice = MakeClampedInt(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} Price", extendedLevel.RoutePrice, "Set a custom route price for this moon (should autopopulate with the correct default price)", 0, 99999);
 
@@ -274,8 +327,7 @@ namespace LethalConstellations.EventStuff
                             AddToConstelMoons(extendedLevel.NumberlessPlanetName, levelToConstellation.Value, stayHiding.Value);
                         else
                         {
-                            Random rand = new();
-                            int chosen = rand.Next(0, ConstellationsList.Count);
+                            int chosen = Rand.Next(0, ConstellationsList.Count);
                             levelToConstellation.Value = ConstellationsList[chosen];
                             AddToConstelMoons(extendedLevel.NumberlessPlanetName, levelToConstellation.Value, stayHiding.Value);
                         }
@@ -302,18 +354,6 @@ namespace LethalConstellations.EventStuff
                     Plugin.Spam($"adding {newMoon} to {cName} / stayHidden: {stayHidden}");
                 }
             }
-        }
-
-        //check for configitem, no out
-        internal static bool CheckForConfigName(string configName)
-        {
-            foreach (ConfigDefinition item in Plugin.instance.Config.Keys)
-            {
-                if (item.Key == configName)
-                    return true;
-            }
-
-            return false;
         }
 
         internal static int GetMoonPrice(string moonName)

@@ -96,8 +96,7 @@ namespace LethalConstellations.PluginCore
         {
             for (int i = 0; i < StartOfRound.Instance.randomNames.Length - 1; i++)
             {
-                Random rand = new();
-                int randomIndex = rand.Next(0, StartOfRound.Instance.randomNames.Length);
+                int randomIndex = Rand.Next(0, StartOfRound.Instance.randomNames.Length);
                 string newName = StartOfRound.Instance.randomNames[randomIndex];
 
                 if (!DynamicBools.TryGetKeyword(newName))

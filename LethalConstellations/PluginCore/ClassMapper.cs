@@ -45,6 +45,26 @@ namespace LethalConstellations.PluginCore
             }
         }
 
+        //for mods like darmuhsTerminalStuff that have a random moon command and need to check if level is in current constellation
+        //added optional constellation string param if wanting to check a specific constellation
+        public static bool IsLevelInConstellation(SelectableLevel level, string constellation = "") 
+        {
+            if (level == null)
+                return false;
+
+            if (constellation.Length < 1)
+                constellation = Collections.CurrentConstellation;
+            string numberlessName = ExtendedLevel.GetNumberlessPlanetName(level);
+            if (TryGetConstellation(Collections.ConstellationStuff, constellation, out ClassMapper currentConst))
+            {
+                if (currentConst.constelMoons.Contains(numberlessName))
+                    return true;
+                else
+                    return false;
+            }
+            return false;
+        }
+
         public static bool TryGetConstellation(List<ClassMapper> constellations, string query, out ClassMapper outConst)
         {
             Plugin.Spam("TryGetConstellation:");

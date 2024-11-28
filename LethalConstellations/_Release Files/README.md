@@ -30,6 +30,7 @@
 - Allow for a moon to remain hidden while being assigned to a constellation.
 - This mod does not do any patching, all game patching is done by OpenLib & LethalLevelLoader.
 - Compatibility with [LethalMoonUnlocks](https://thunderstore.io/c/lethal-company/p/explodingMods/LethalMoonUnlocks/)
+- Compatibility with [LateGameUpgrades](https://thunderstore.io/c/lethal-company/p/malco/Lategame_Upgrades/)' Efficient Engines Upgrade coming soon!
 
 ### For other mod devs looking to add compatibility:
 - Subscribe to the RouteConstellationSuccess event in NewEvents.cs to call your own code when routing to a new constellation.

@@ -386,9 +386,9 @@ namespace LethalConstellations.PluginCore
             else
                 currentLevel = LevelManager.CurrentExtendedLevel.NumberlessPlanetName;
 
-            if (currentLevel.ToLower() == CompanyMoon.ToLower() && CurrentConstellation.Length < 1)
+            if (currentLevel.ToLower() == CompanyMoon.ToLower() && (CurrentConstellation.Length < 1 || !Configuration.ReturnToLastConstellationFromCompany.Value))
             {
-                Plugin.WARNING("Current save is located at the Company! Setting to default!");
+                Plugin.Log.LogInfo("Currently located at the Company! Setting to default constellation!");
                 if (TryGetDefaultConstellation(out ClassMapper theConst))
                 {
                     if (theConst.canRouteCompany)

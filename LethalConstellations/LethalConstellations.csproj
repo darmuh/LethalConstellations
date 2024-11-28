@@ -85,9 +85,8 @@
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\dontloadpls\xilophor-LethalNetworkAPI\LethalNetworkAPI\LethalNetworkAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="OpenLib, Version=0.1.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Z:\games\modding\LC\publicDevLibrary\OpenLib\_Release Files\OpenLib.dll</HintPath>
+    <Reference Include="OpenLib">
+      <HintPath>D:\games\modding\LC\publicDevLibrary\OpenLib\_Release Files\OpenLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />

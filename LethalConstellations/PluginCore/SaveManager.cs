@@ -1,4 +1,5 @@
 ﻿using LethalConstellations.Compat;
+using LethalConstellations.ConfigManager;
 using LethalLevelLoader;
 using System.Collections.Generic;
 using static LethalConstellations.PluginCore.Collections;
@@ -32,6 +33,44 @@ namespace LethalConstellations.PluginCore
             InitUnlocks();
             InitCurrent();
 
+        }
+
+        internal static void InitHostStuff()
+        {
+            if (!GameNetworkManager.Instance.isHostingGame)
+                return;
+
+            if(StartOfRound.Instance.gameStats.daysSpent == 0 && StartOfRound.Instance.defaultPlanet == StartOfRound.Instance.currentLevelID)
+            {
+                if(Configuration.StartingConstellation.Value.Length > 0)
+                {
+                    if(Configuration.StartingConstellation.Value == "~random~")
+                    {
+                        ClassMapper starter = ConstellationStuff[Rand.Next(ConstellationStuff.Count)];
+                        if (StartOfRound.Instance.currentLevel != starter.defaultMoonLevel.SelectableLevel)
+                        {
+                            StartOfRound.Instance.ChangeLevelServerRpc(starter.defaultMoonLevel.SelectableLevel.levelID, Plugin.instance.Terminal.groupCredits);
+                            StartOfRound.Instance.defaultPlanet = starter.defaultMoonLevel.SelectableLevel.levelID;
+                            Plugin.Spam($"Setting level to [ {starter.defaultMoonLevel.NumberlessPlanetName} ] from Random Starter Constellation!");
+                            return;
+                        }
+
+                        LevelStuff.AdjustToNewConstellation(starter.defaultMoon, starter.consName);
+                        StartOfRound.Instance.defaultPlanet = starter.defaultMoonLevel.SelectableLevel.levelID;
+                        Plugin.Spam($"Constellation set to [ {starter.consName} ] from Random Starter Constellation!");
+                        return;
+                    }
+
+                    if (ClassMapper.TryGetConstellation(ConstellationStuff, Configuration.StartingConstellation.Value, out ClassMapper outConst))
+                    {
+                        StartOfRound.Instance.ChangeLevelServerRpc(outConst.defaultMoonLevel.SelectableLevel.levelID, Plugin.instance.Terminal.groupCredits);
+                        Plugin.Spam($"Setting level to [ {outConst.defaultMoonLevel.NumberlessPlanetName} ]");
+                        StartOfRound.Instance.defaultPlanet = outConst.defaultMoonLevel.SelectableLevel.levelID;
+                    }    
+                    else
+                        Plugin.WARNING($"Unable to set constellation to StartingConstellation config - [ {Configuration.StartingConstellation.Value} ]");
+                }
+            }
         }
 
         internal static void InitUnlocks()

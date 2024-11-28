@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.2.6]
+ - Added ``StartingConstellation`` config item to set initial constellation when starting a new game (new saves or after being fired)
+	- Will auto-route you to the default moon of this constellation when this is set (no charge of credits)
+	- Leave blank if you do not want the level/constellation to change on a new save (will likely be experimentation unless another mod changes this)
+	- Set to ``~random~`` to route to a random constellation on each new game (new game save or after getting fired)
+ - Added ``ReturnToLastConstellationFromCompany`` config item (true/false)
+	- When set to true, you will remain in the constellation you travelled to the company from when you leave the company.
+	- When set to false, you will be put in the constellation set via ``CompanyDefaultConstellation``.
+ - Added ``ManualSetupListing`` config item to streamline initial setup of the mod.
+	- This config item requires valid listings in ConstellationList to work.
+	- Will match different moon names to each constellation name provided.
+	- This does not modify existing generated configs and will only be used when first generating a config item for a moon.
+	- If a moon is being generated a configuration item and it does not match any from this list, it will be added to a random constellation.
+ - Added ``IsLevelInConstellation`` boolean for other mods to check if a given level is within either the current constellation or a specific constellation
+ - Added safeguards against duplicate constellation names, including a warning that displays when duplicates are detected.
+	- Will clean internal constellation names listing of any duplicates and display a warning in the log.
+ - Added some more safeguards in the LLL generated config portion to protect against rare cases where this mod is given bad/incomplete information
+
 ## [0.2.5]
  - Fixed fatal error during automated system creating fauxkeywords from LLL content tags which broke the terminal
  - Added logic to skip content tags that are shorter than 3 characters or contain spaces
