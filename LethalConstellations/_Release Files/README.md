@@ -19,6 +19,8 @@
 	- Customizable text for all different types of terminal commands relating to the constellations.
 	- Optional shortcut keywords can also be added to each constellation.
 - Current Constellation will be updated on lobby load, works between save files!
+- Starter Constellation can be set in config as a specific constellation or random!
+- The possible starting constellations can also be fine tuned in the config to a set list when using random starter constellations.
 - Moon prices can also be modified by this mod or left to be handled elsewhere.
 - Set routing to a specific constellation to cost credits or allow for your constellations to be free.
 - Set a constellation to be a one-time-purchase, this purchase will be remembered for each save file.
@@ -30,11 +32,19 @@
 - Allow for a moon to remain hidden while being assigned to a constellation.
 - This mod does not do any patching, all game patching is done by OpenLib & LethalLevelLoader.
 - Compatibility with [LethalMoonUnlocks](https://thunderstore.io/c/lethal-company/p/explodingMods/LethalMoonUnlocks/)
-- Compatibility with [LateGameUpgrades](https://thunderstore.io/c/lethal-company/p/malco/Lategame_Upgrades/)' Efficient Engines Upgrade coming soon!
+- Compatibility with [LateGameUpgrades](https://thunderstore.io/c/lethal-company/p/malco/Lategame_Upgrades/)' Efficient Engines Upgrade
 
 ### For other mod devs looking to add compatibility:
 - Subscribe to the RouteConstellationSuccess event in NewEvents.cs to call your own code when routing to a new constellation.
 - Access ConstellationStuff in Collections.cs for a listing of all constellations and their ClassMapper.cs properties
+
+### Having issues setting up the config?
+- Try [OpenLib's Bepinex Config Management Webpage (v0.1.2)](https://darmuh.github.io/OpenLib/OpenLib/Website/Examples/ConfigManagement.html)
+	- Simply upload your config file to the page and it will generate a form for the given config file.
+	- Once you are done modifying the form on the webpage you can then click the button at the bottom of the page to compare your changes to the original config file.
+	- When the page is done comparing your changes, it will save/download a new config file to your device.
+	- Replace your original config file with this new one to use it in game!
+ - You can also try following along the [steps here](https://thunderstore.io/c/lethal-company/p/darmuh/LethalConstellations/wiki/2563-how-to-use-webconfig/) to use the WebConfig file that you can generate from this mod.
 
 ### If you have any ideas on how to make this mod better please feel free to reach out!
 

@@ -10,7 +10,7 @@ namespace LethalConstellations
 {
     [BepInPlugin("com.github.darmuh.LethalConstellations", "LethalConstellations", (PluginInfo.PLUGIN_VERSION))]
     [BepInDependency("imabatby.lethallevelloader", "1.3.8")]
-    [BepInDependency("darmuh.OpenLib", "0.2.9")]
+    [BepInDependency("darmuh.OpenLib", "0.2.10")]
 
     public class Plugin : BaseUnityPlugin
     {
@@ -19,7 +19,7 @@ namespace LethalConstellations
         {
             public const string PLUGIN_GUID = "com.github.darmuh.LethalConstellations";
             public const string PLUGIN_NAME = "LethalConstellations";
-            public const string PLUGIN_VERSION = "0.2.6";
+            public const string PLUGIN_VERSION = "0.2.7";
         }
 
         internal static ManualLogSource Log;

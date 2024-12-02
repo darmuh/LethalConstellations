@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.2.7]
+ - Added ``AcceptableStartingConstellations`` config item to set a specific set of constellations as potential starter constellations when ``StartingConstellation`` is set to ``random``.
+	- Leave blank to let random choose ANY valid constellation
+	- You can put duplicate entries of a constellation name to raise the odds that it will be chosen, this list does not need to have unique entries.
+ - Compiled with latest version of LLL (1.3.13)
+
 ## [0.2.6]
  - Added ``StartingConstellation`` config item to set initial constellation when starting a new game (new saves or after being fired)
 	- Will auto-route you to the default moon of this constellation when this is set (no charge of credits)

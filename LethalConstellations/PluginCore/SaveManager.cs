@@ -1,6 +1,7 @@
 ﻿using LethalConstellations.Compat;
 using LethalConstellations.ConfigManager;
 using LethalLevelLoader;
+using OpenLib.Common;
 using System.Collections.Generic;
 using static LethalConstellations.PluginCore.Collections;
 
@@ -46,7 +47,35 @@ namespace LethalConstellations.PluginCore
                 {
                     if(Configuration.StartingConstellation.Value == "~random~")
                     {
-                        ClassMapper starter = ConstellationStuff[Rand.Next(ConstellationStuff.Count)];
+                        ClassMapper starter = null!;
+
+                        if(Configuration.AcceptableStartingConstellations.Value.Length > 0)
+                        {
+                            int chosenIndex;
+                            List<string> acceptableStarters = CommonStringStuff.GetKeywordsPerConfigItem(Configuration.AcceptableStartingConstellations.Value, ',');
+                            acceptableStarters.RemoveAll(x => x.Length < 1);
+                            int loopCount = 0;
+
+                            do
+                            {
+                                chosenIndex = Rand.Next(acceptableStarters.Count);
+                                loopCount++;
+                                if(ClassMapper.TryGetConstellation(ConstellationStuff, acceptableStarters[chosenIndex], out starter))
+                                {
+                                    Plugin.Spam($"Random Starter Constellation Chosen! [ {starter.consName} ]");
+                                }
+                                else if(loopCount > 10)
+                                {
+                                    Plugin.WARNING($"FAILED TO GRAB A VALID RANDOM STARTER CONSTELLATION FROM LIST [ {Configuration.AcceptableStartingConstellations.Value} ]");
+                                    Plugin.WARNING($"Setting Constellation to ANY random constellation from listing (Count:{ConstellationStuff.Count}");
+                                    starter = ConstellationStuff[Rand.Next(ConstellationStuff.Count)];
+                                }
+
+                            } while (starter == null);
+                            
+                        }
+                        else
+                            starter = ConstellationStuff[Rand.Next(ConstellationStuff.Count)];
                         if (StartOfRound.Instance.currentLevel != starter.defaultMoonLevel.SelectableLevel)
                         {
                             StartOfRound.Instance.ChangeLevelServerRpc(starter.defaultMoonLevel.SelectableLevel.levelID, Plugin.instance.Terminal.groupCredits);
