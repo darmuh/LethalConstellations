@@ -1,4 +1,5 @@
 ﻿
+using System;
 using LethalLevelLoader;
 using System.Collections.Generic;
 
@@ -6,6 +7,34 @@ namespace LethalConstellations.PluginCore
 {
     public class ClassMapper
     {
+        internal static void UpdatePricesBasedOnCurrent(List<ClassMapper> constellations)
+        {
+            if (string.IsNullOrEmpty(Collections.CurrentConstellation))
+            {
+                Plugin.Spam("No current constellation is set.");
+                return;
+            }
+
+            var currentConstellation = constellations.Find(c => c.consName == Collections.CurrentConstellation);
+            if (currentConstellation == null)
+            {
+                Plugin.Spam($"Current constellation '{Collections.CurrentConstellation}' not found in the list.");
+                return;
+            }
+
+            int currentID = currentConstellation.ConstellationID;
+
+            foreach (var constellation in constellations)
+            {
+                int distance = Math.Abs(constellation.ConstellationID - currentID);
+                constellation.constelPrice = 500 * distance;
+
+                Plugin.Spam($"Updated price for {constellation.consName} (ID: {constellation.ConstellationID}): {constellation.constelPrice}");
+            }
+        }
+        private static int _counter = 0;
+        public int ConstellationID { get; private set; }
+
         public string consName;
         public List<string> constelMoons = [];
         public List<string> stayHiddenMoons = [];
@@ -24,6 +53,7 @@ namespace LethalConstellations.PluginCore
 
         internal ClassMapper(string cName, int cPrice = 0, string defMoon = "", string menuText = "")
         {
+            this.ConstellationID = ++_counter;
             this.consName = cName;
             this.constelPrice = cPrice;
             this.defaultMoon = defMoon;

@@ -27,6 +27,7 @@ namespace LethalConstellations.PluginCore
                 if (Plugin.instance.Terminal.groupCredits < getPrice)
                     return $"Unable to afford to travel to {ConstellationWord} - {constellationName.ToUpper()}\r\n\r\n";
                 CurrentConstellation = constellationName;
+                ClassMapper.UpdatePricesBasedOnCurrent(ConstellationStuff);
                 Plugin.Spam($"oldcreds: {Plugin.instance.Terminal.groupCredits}");
                 int newCreds = Plugin.instance.Terminal.groupCredits - getPrice;
                 Plugin.Spam($"newCreds amount = {Plugin.instance.Terminal.groupCredits}");
@@ -51,6 +52,7 @@ namespace LethalConstellations.PluginCore
                 return failText;
 
             return $"Travel to {ConstellationWord} - {constellationName.ToUpper()}?\n\n\n\n\n\n\n\n\n\n\n\nPlease CONFIRM or DENY.\n";
+
 
         }
 
