@@ -1,7 +1,8 @@
-﻿using LethalConstellations.ConfigManager;
+using LethalConstellations.ConfigManager;
 using LethalLevelLoader;
 using OpenLib.Common;
 using OpenLib.CoreMethods;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static LethalConstellations.PluginCore.Collections;
@@ -131,7 +132,7 @@ namespace LethalConstellations.PluginCore
 
                 int getPrice = LevelStuff.GetConstPrice(item.consName);
 
-                menuText = menuText.Replace("[~t]", "\t").Replace("[~n]", "\n").Replace("[name]", item.consName).Replace("[price]", $"{getPrice}").Replace("[defaultmoon]", $"{defaultMoon}").Replace("[currentweather]", defaultWeather).Replace("[optionals]", item.optionalParams);
+                menuText = menuText.Replace("[~t]", "\t").Replace("[~n]", "\n").Replace("[name]", item.consName).Replace("[price]", $"{getPrice}").Replace("[defaultmoon]", $"{defaultMoon}").Replace("[currentweather]", defaultWeather).Replace("[lightyears]", $"{item.LightYearsToTravel}").Replace("[optionals]", item.optionalParams);
 
                 if (Configuration.HideUnaffordableConstellations.Value && getPrice > Plugin.instance.Terminal.groupCredits)
                     continue;
