@@ -1,4 +1,4 @@
-﻿using BepInEx.Configuration;
+using BepInEx.Configuration;
 using LethalConstellations.Compat;
 using LethalConstellations.ConfigManager;
 using LethalConstellations.PluginCore;
@@ -77,7 +77,7 @@ namespace LethalConstellations.EventStuff
 
             foreach (string name in ConstellationsList)
             {
-                ConfigEntry<string> menuText = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} menuText", $"Route to {ConstellationWord} [name][~t]$[price][~n]Default Moon: [defaultmoon] [currentweather] [optionals]", $"The text displayed for this {ConstellationWord}'s menu item");
+                ConfigEntry<string> menuText = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} menuText", $"Route to {ConstellationWord} [name][~t]$[price][~n]Default Moon: [defaultmoon] [currentweather][~n][lightyears] light years away [optionals]", $"The text displayed for this {ConstellationWord}'s menu item");
 
                 ConfigEntry<string> shortCuts = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} shortcuts", "", $"Specify a list of shortcuts to use for routing to the {name} {ConstellationWord}.\nEach shortcut keyword is separated by a ','");
 
