@@ -1,4 +1,4 @@
-﻿using OpenLib.Events;
+using OpenLib.Events;
 
 namespace LethalConstellations.EventStuff
 {
