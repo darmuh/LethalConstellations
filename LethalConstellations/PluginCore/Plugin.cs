@@ -70,3 +70,4 @@ namespace LethalConstellations
             Log.LogWarning(message);
         }
     }
+}
