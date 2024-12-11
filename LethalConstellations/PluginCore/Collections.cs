@@ -1,4 +1,4 @@
-﻿using LethalLevelLoader;
+using LethalLevelLoader;
 using System.Collections.Generic;
 
 namespace LethalConstellations.PluginCore
