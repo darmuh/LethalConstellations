@@ -1,12 +1,16 @@
-﻿
+
 using System;
 using LethalLevelLoader;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace LethalConstellations.PluginCore
 {
     public class ClassMapper
     {
+        static public int PriceOfOneLightYear = 50;
+        public static int LightYears = 20;
+        public static int TotalCostForRouteUsingLightYears = PriceOfOneLightYear * LightYears;
         internal static void UpdatePricesBasedOnCurrent(List<ClassMapper> constellations)
         {
             if (string.IsNullOrEmpty(Collections.CurrentConstellation))
@@ -27,11 +31,13 @@ namespace LethalConstellations.PluginCore
             foreach (var constellation in constellations)
             {
                 int distance = Math.Abs(constellation.ConstellationID - currentID);
-                constellation.constelPrice = 500 * distance;
+                constellation.constelPrice = TotalCostForRouteUsingLightYears * distance;
+                constellation.LightYearsToTravel = LightYears * distance;
 
                 Plugin.Spam($"Updated price for {constellation.consName} (ID: {constellation.ConstellationID}): {constellation.constelPrice}");
             }
         }
+
         private static int _counter = 0;
         public int ConstellationID { get; private set; }
 
@@ -40,6 +46,7 @@ namespace LethalConstellations.PluginCore
         public List<string> stayHiddenMoons = [];
         public bool buyOnce;
         public int constelPrice;
+        public int LightYearsToTravel;
         public string defaultMoon;
         public ExtendedLevel defaultMoonLevel;
         internal string menuText;
@@ -51,8 +58,9 @@ namespace LethalConstellations.PluginCore
         public bool canRouteCompany;
         internal string shortcutList;
 
-        internal ClassMapper(string cName, int cPrice = 0, string defMoon = "", string menuText = "")
+        internal ClassMapper(string cName, int cPrice = 0, string defMoon = "", string menuText = "", int clightyears = 0)
         {
+            this.LightYearsToTravel = clightyears;
             this.ConstellationID = ++_counter;
             this.consName = cName;
             this.constelPrice = cPrice;
@@ -60,6 +68,7 @@ namespace LethalConstellations.PluginCore
             this.menuText = menuText;
             this.oneTimePurchase = false;
             this.isLocked = false;
+
         }
 
         internal static void UpdateCNames(List<ClassMapper> constellations, Dictionary<string, string> fixedNames)
