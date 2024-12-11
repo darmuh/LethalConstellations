@@ -7,6 +7,7 @@ using OpenLib.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Rendering;
 using static LethalConstellations.PluginCore.Collections;
 using static OpenLib.ConfigManager.ConfigSetup;
 using Random = System.Random;
@@ -272,7 +273,9 @@ namespace LethalConstellations.EventStuff
                 }
 
                 ConfigEntry<int> constellationPrice = MakeClampedInt(Configuration.GeneratedConfig, $"{ConstellationWord} {constel.consName}", $"{constel.consName} constellationPrice", defPrice, $"Set the price to route to this {ConstellationWord} and it's defaultMoon", 0, 9999);
+                ConfigEntry<int> Distance = MakeClampedInt(Configuration.GeneratedConfig, $"{ConstellationWord} {constel.consName}", $"{constel.consName} constellationDistance", defPrice, $"Set the distance in light-years from the starting {ConstellationWord} to this {ConstellationWord} to route to its defaultMoon", 0, 9999);
 
+                constel.Distance = Distance.Value;
                 constel.constelPrice = constellationPrice.Value;
 
             }
