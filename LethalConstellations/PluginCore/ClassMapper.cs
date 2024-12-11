@@ -3,14 +3,15 @@ using System;
 using LethalLevelLoader;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using UnityEngine.Rendering;
 
 namespace LethalConstellations.PluginCore
 {
+
     public class ClassMapper
     {
+        private static int DistanceCurrentContellation;
         static public int PriceOfOneLightYear = 50;
-        public static int LightYears = 20;
-        public static int TotalCostForRouteUsingLightYears = PriceOfOneLightYear * LightYears;
         internal static void UpdatePricesBasedOnCurrent(List<ClassMapper> constellations)
         {
             if (string.IsNullOrEmpty(Collections.CurrentConstellation))
@@ -30,9 +31,15 @@ namespace LethalConstellations.PluginCore
 
             foreach (var constellation in constellations)
             {
-                int distance = Math.Abs(constellation.ConstellationID - currentID);
-                constellation.constelPrice = TotalCostForRouteUsingLightYears * distance;
-                constellation.LightYearsToTravel = LightYears * distance;
+                if (constellation == currentConstellation)
+                {
+                    DistanceCurrentContellation = constellation.Distance;
+                    continue;
+                }
+                int LightYearsForEach = Math.Abs(DistanceCurrentContellation - constellation.Distance);
+                constellation.Distance = LightYearsForEach;
+                constellation.constelPrice = PriceOfOneLightYear * LightYearsForEach;
+                int LightYearsToTravel = LightYearsForEach;
 
                 Plugin.Spam($"Updated price for {constellation.consName} (ID: {constellation.ConstellationID}): {constellation.constelPrice}");
             }
@@ -46,6 +53,7 @@ namespace LethalConstellations.PluginCore
         public List<string> stayHiddenMoons = [];
         public bool buyOnce;
         public int constelPrice;
+        public int Distance;
         public int LightYearsToTravel;
         public string defaultMoon;
         public ExtendedLevel defaultMoonLevel;
@@ -58,8 +66,9 @@ namespace LethalConstellations.PluginCore
         public bool canRouteCompany;
         internal string shortcutList;
 
-        internal ClassMapper(string cName, int cPrice = 0, string defMoon = "", string menuText = "", int clightyears = 0)
+        internal ClassMapper(string cName, int cPrice = 0, string defMoon = "", string menuText = "", int clightyears = 0, int cDistanceFromStart = 1)
         {
+            this.Distance = cDistanceFromStart;
             this.LightYearsToTravel = clightyears;
             this.ConstellationID = ++_counter;
             this.consName = cName;
