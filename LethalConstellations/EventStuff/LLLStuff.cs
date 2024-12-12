@@ -8,6 +8,7 @@ using Steamworks.Ugc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine.Rendering;
 using static LethalConstellations.PluginCore.Collections;
 using static OpenLib.ConfigManager.ConfigSetup;
@@ -294,49 +295,52 @@ namespace LethalConstellations.EventStuff
                 if(extendedLevel == null) //skip null extendedLevel (this should never happen but just in case lol)
                     continue;
 
-                if (extendedLevel.NumberlessPlanetName.Length < 1) //skip too short name
+                string moonName = BepinFriendlyString(extendedLevel.NumberlessPlanetName);
+                Plugin.Spam($"moonName is {moonName}");
+
+                if (moonName.Length < 1)
                     continue;
 
-                if (ignoreList.Contains(extendedLevel.NumberlessPlanetName.ToLower())) //ignore moons specified by user config
+                if (ignoreList.Contains(moonName.ToLower())) //ignore moons specified by user config
                     continue;
 
-                if (extendedLevel.NumberlessPlanetName.ToLower() == CompanyMoon.ToLower()) //ignore company moon
+                if (moonName.ToLower() == CompanyMoon.ToLower()) //ignore company moon
                     continue;
 
-                string defaultValue = GetDefaultCName(ConstellationsList, extendedLevel.NumberlessPlanetName);
-                Plugin.Spam("extendedLevel.NumberlessPlanetName default constellation set to - " + defaultValue);
+                string defaultValue = GetDefaultCName(ConstellationsList, moonName);
+                Plugin.Spam($"{moonName} default constellation set to - " + defaultValue);
 
-                ConfigEntry<int> levelPrice = MakeClampedInt(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} Price", extendedLevel.RoutePrice, "Set a custom route price for this moon (should autopopulate with the correct default price)", 0, 99999);
+                ConfigEntry<int> levelPrice = MakeClampedInt(Configuration.GeneratedConfig, "Moons", $"{moonName} Price", extendedLevel.RoutePrice, "Set a custom route price for this moon (should autopopulate with the correct default price)", 0, 99999);
 
-                ConfigEntry<bool> stayHiding = MakeBool(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} Stay Hidden", extendedLevel.IsRouteHidden, $"Set this to true to keep {extendedLevel.NumberlessPlanetName} hidden even when you're in it's {ConstellationWord}");
+                ConfigEntry<bool> stayHiding = MakeBool(Configuration.GeneratedConfig, "Moons", $"{moonName} Stay Hidden", extendedLevel.IsRouteHidden, $"Set this to true to keep {moonName} hidden even when you're in it's {ConstellationWord}");
 
                 if (usingTags)
                 {
                     string tagConstellation = GetTagInfo(extendedLevel, ConstellationsList);
-                    ConfigEntry<string> levelToConstellation = MakeClampedString(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} {ConstellationWord}", tagConstellation, $"Specify which {ConstellationWord} {extendedLevel.NumberlessPlanetName} belongs to.\nClamped to what is set in [ConstellationList] (default listing)", new AcceptableValueList<string>([.. ConstellationsList]));
-                    AddToConstelMoons(extendedLevel.NumberlessPlanetName, levelToConstellation.Value, stayHiding.Value);
+                    ConfigEntry<string> levelToConstellation = MakeClampedString(Configuration.GeneratedConfig, "Moons", $"{moonName} {ConstellationWord}", tagConstellation, $"Specify which {ConstellationWord} {moonName} belongs to.\nClamped to what is set in [ConstellationList] (default listing)", new AcceptableValueList<string>([.. ConstellationsList]));
+                    AddToConstelMoons(moonName, levelToConstellation.Value, stayHiding.Value);
                 }
                 else
                 {
-                    ConfigEntry<string> levelToConstellation = MakeString(Configuration.GeneratedConfig, "Moons", $"{extendedLevel.NumberlessPlanetName} {ConstellationWord}", defaultValue, $"Specify which {ConstellationWord} {extendedLevel.NumberlessPlanetName} belongs to.\nShould match an item from [ConstellationList]\nIf adding to multiple {ConstellationsWord}, separate each {ConstellationWord} by a comma.\nWill be autoset to a random {ConstellationWord} if not matching one.");
+                    ConfigEntry<string> levelToConstellation = MakeString(Configuration.GeneratedConfig, "Moons", $"{moonName} {ConstellationWord}", defaultValue, $"Specify which {ConstellationWord} {moonName} belongs to.\nShould match an item from [ConstellationList]\nIf adding to multiple {ConstellationsWord}, separate each {ConstellationWord} by a comma.\nWill be autoset to a random {ConstellationWord} if not matching one.");
 
                     if (levelToConstellation.Value.Contains(","))
                     {
                         List<string> constellationList = CommonStringStuff.GetKeywordsPerConfigItem(levelToConstellation.Value, ',');
                         foreach (string conName in constellationList)
                         {
-                            AddToConstelMoons(extendedLevel.NumberlessPlanetName, conName, stayHiding.Value);
+                            AddToConstelMoons(moonName, conName, stayHiding.Value);
                         }
                     }
                     else
                     {
                         if (ConstellationsList.Any(c => c.ToLower() == levelToConstellation.Value.ToLower()))
-                            AddToConstelMoons(extendedLevel.NumberlessPlanetName, levelToConstellation.Value, stayHiding.Value);
+                            AddToConstelMoons(moonName, levelToConstellation.Value, stayHiding.Value);
                         else
                         {
                             int chosen = Rand.Next(0, ConstellationsList.Count);
                             levelToConstellation.Value = ConstellationsList[chosen];
-                            AddToConstelMoons(extendedLevel.NumberlessPlanetName, levelToConstellation.Value, stayHiding.Value);
+                            AddToConstelMoons(moonName, levelToConstellation.Value, stayHiding.Value);
                         }
                     }
 
@@ -386,6 +390,22 @@ namespace LethalConstellations.EventStuff
             Random ran = new();
             int rand = ran.Next(0, constellation.constelMoons.Count);
             return constellation.constelMoons[rand];
+        }
+
+        internal static string BepinFriendlyString(string input)
+        {
+            char[] invalidChars = ['\'', '\n', '\t', '\\', '"', '[', ']'];
+            string result = "";
+
+            foreach (char c in input)
+            {
+                if (!invalidChars.Contains(c))
+                    result += c;
+                else
+                    continue;
+            }
+
+            return result;
         }
     }
 }

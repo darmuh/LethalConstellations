@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.2.8]
+ - Luigi's Mansion hotfix (fixes crashes related to trying to run this mod with this moon)
+	- Will now parse extendedLevel.NumberlessPlanetName from LLL to ensure it's compatibile with Bepinex config naming requirements.
+	- Tried to ensure existing config items remain unchanged by my fix for this. Please make sure to backup configs before generating a new config with this update.
+
 ## [0.2.7]
  - Added ``AcceptableStartingConstellations`` config item to set a specific set of constellations as potential starter constellations when ``StartingConstellation`` is set to ``random``.
 	- Leave blank to let random choose ANY valid constellation
