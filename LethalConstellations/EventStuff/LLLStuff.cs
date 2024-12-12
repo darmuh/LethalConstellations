@@ -4,6 +4,7 @@ using LethalConstellations.ConfigManager;
 using LethalConstellations.PluginCore;
 using LethalLevelLoader;
 using OpenLib.Common;
+using Steamworks.Ugc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace LethalConstellations.EventStuff
 {
     internal class LLLStuff
     {
+        private static List<ClassMapper> constellations = new List<ClassMapper>();
         internal static bool usingTags = false;
         public static void LLLSetup()
         {
@@ -78,34 +80,36 @@ namespace LethalConstellations.EventStuff
 
             foreach (string name in ConstellationsList)
             {
-                ConfigEntry<string> menuText = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} menuText", $"Route to {ConstellationWord} [name][~t]$[price][~n]Default Moon: [defaultmoon] [currentweather][~n][lightyears] light years away [optionals]", $"The text displayed for this {ConstellationWord}'s menu item");
 
-                ConfigEntry<string> shortCuts = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} shortcuts", "", $"Specify a list of shortcuts to use for routing to the {name} {ConstellationWord}.\nEach shortcut keyword is separated by a ','");
+                    ConfigEntry<string> menuText = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} menuText", $"Route to {ConstellationWord} [name][~t]$[price][~n]Default Moon: [defaultmoon] [currentweather][~n][lightyears] light years away [optionals]", $"The text displayed for this {ConstellationWord}'s menu item");
 
-                ConfigEntry<bool> isHiding = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} isHidden", false, $"Enable this to hide this {ConstellationWord} from the constellation listing");
+                    ConfigEntry<string> shortCuts = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} shortcuts", "", $"Specify a list of shortcuts to use for routing to the {name} {ConstellationWord}.\nEach shortcut keyword is separated by a ','");
 
-                ConfigEntry<bool> canGoCompany = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} canRouteCompany", true, $"Enable this to allow this {ConstellationWord} to route to the company moon");
+                    ConfigEntry<bool> isHiding = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} isHidden", false, $"Enable this to hide this {ConstellationWord} from the constellation listing");
 
-                ConfigEntry<bool> buyOnce = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} One-Time Purchase", false, $"Enable this to allow routing to this {ConstellationWord} for free after paying for it once");
+                    ConfigEntry<bool> canGoCompany = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} canRouteCompany", true, $"Enable this to allow this {ConstellationWord} to route to the company moon");
 
-                ClassMapper constClass = new(name);
-                constClass.menuText = menuText.Value;
-                constClass.isHidden = isHiding.Value;
-                constClass.canRouteCompany = canGoCompany.Value;
-                constClass.shortcutList = shortCuts.Value;
-                constClass.buyOnce = buyOnce.Value;
+                    ConfigEntry<bool> buyOnce = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} One-Time Purchase", false, $"Enable this to allow routing to this {ConstellationWord} for free after paying for it once");
 
-                if (Configuration.ConstellationSpecificInfoNodes.Value)
-                {
-                    ConfigEntry<string> infoText = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} infoText", $"{ConstellationWord} - {name}\n\n\nThis [ConstellationWord] contains moons in it. Route to it and find out which!\r\n\r\n", $"The text that displays with the info command for this {ConstellationWord}");
-                    if (infoText.Value.Contains("[ConstellationWord]"))
-                        infoText.Value = infoText.Value.Replace("[ConstellationWord]", ConstellationWord);
-                    constClass.infoText = infoText.Value;
-                }
+                    ClassMapper constClass = new(name);
+                    constClass.menuText = menuText.Value;
+                    constClass.isHidden = isHiding.Value;
+                    constClass.canRouteCompany = canGoCompany.Value;
+                    constClass.shortcutList = shortCuts.Value;
+                    constClass.buyOnce = buyOnce.Value;
 
-                constClass.constelMoons = [];
-                constClass.stayHiddenMoons = [];
-                ConstellationStuff.Add(constClass);
+                    if (Configuration.ConstellationSpecificInfoNodes.Value)
+                    {
+                        ConfigEntry<string> infoText = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {name}", $"{name} infoText", $"{ConstellationWord} - {name}\n\n\nThis [ConstellationWord] contains moons in it. Route to it and find out which!\r\n\r\n", $"The text that displays with the info command for this {ConstellationWord}");
+                        if (infoText.Value.Contains("[ConstellationWord]"))
+                            infoText.Value = infoText.Value.Replace("[ConstellationWord]", ConstellationWord);
+                        constClass.infoText = infoText.Value;
+                    }
+
+                    constClass.constelMoons = [];
+                    constClass.stayHiddenMoons = [];
+                    ConstellationStuff.Add(constClass);
+                
             }
 
             Plugin.Spam("about to sort through extendedlevel");
