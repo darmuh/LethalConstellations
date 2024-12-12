@@ -1,4 +1,4 @@
-using LethalConstellations.ConfigManager;
+ using LethalConstellations.ConfigManager;
 using LethalLevelLoader;
 using OpenLib.Common;
 using OpenLib.CoreMethods;
