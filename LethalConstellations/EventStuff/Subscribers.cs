@@ -50,6 +50,7 @@ namespace LethalConstellations.EventStuff
         {
             MenuStuff.PreInit();
             InitSave();
+            ClassMapper.UpdatePricesBasedOnCurrent(Collections.ConstellationStuff);
         }
 
         public static void OnLevelChange()
