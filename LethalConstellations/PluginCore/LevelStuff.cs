@@ -27,7 +27,6 @@ namespace LethalConstellations.PluginCore
                 if (Plugin.instance.Terminal.groupCredits < getPrice)
                     return $"Unable to afford to travel to {ConstellationWord} - {constellationName.ToUpper()}\r\n\r\n";
                 CurrentConstellation = constellationName;
-                ClassMapper.UpdatePricesBasedOnCurrent(ConstellationStuff);
                 Plugin.Spam($"oldcreds: {Plugin.instance.Terminal.groupCredits}");
                 int newCreds = Plugin.instance.Terminal.groupCredits - getPrice;
                 Plugin.Spam($"newCreds amount = {Plugin.instance.Terminal.groupCredits}");
@@ -39,7 +38,7 @@ namespace LethalConstellations.PluginCore
                 NewEvents.RouteConstellationSuccess.Invoke(); //for other mods to subscribe to successful route
 
                 OneTimePurchaseCheck(constellationName);
-
+                ClassMapper.UpdatePricesBasedOnCurrent(ConstellationStuff);
                 return $"Travelling to {ConstellationWord} - {CurrentConstellation.ToUpper()}\nYour new credits balance: ${newCreds}\r\n\r\n";
             }
             else
