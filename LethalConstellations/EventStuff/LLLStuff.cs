@@ -246,6 +246,7 @@ namespace LethalConstellations.EventStuff
         internal static void SetDefaultMoon(List<ClassMapper> allConstell)
         {
             Plugin.Spam("Getting Default Moons/Prices");
+
             foreach (ClassMapper constel in allConstell)
             {
                 Plugin.Spam($"Setting defaults for {constel.consName}");
@@ -256,8 +257,7 @@ namespace LethalConstellations.EventStuff
 
                 Plugin.Spam($"constelMoons - {constel.constelMoons.Count}");
 
-                //not making clamped string to avoid issues with web config creation
-
+                // Not making clamped string to avoid issues with web config creation
                 defaultMoon = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {constel.consName}", $"{constel.consName} defaultMoon", defMoon, $"Default moon to route to when selecting this {ConstellationWord}");
 
                 constel.defaultMoon = defaultMoon.Value;
@@ -272,18 +272,16 @@ namespace LethalConstellations.EventStuff
                     constel.defaultMoon = newDef;
                     defaultMoon.Value = newDef;
                     constel.defaultMoonLevel = MoonStuff.GetExtendedLevel(newDef);
-
                 }
 
-                ConfigEntry<int> constellationPrice = MakeClampedInt(Configuration.GeneratedConfig, $"{ConstellationWord} {constel.consName}", $"{constel.consName} constellationPrice", defPrice, $"Set the price to route to this {ConstellationWord} and it's defaultMoon", 0, 9999);
                 ConfigEntry<int> Distance = MakeClampedInt(Configuration.GeneratedConfig, $"{ConstellationWord} {constel.consName}", $"{constel.consName} constellationDistance", defPrice, $"Set the distance in light-years from the starting {ConstellationWord} to this {ConstellationWord} to route to its defaultMoon", 0, 9999);
-
                 constel.Distance = Distance.Value;
+
+                ConfigEntry<int> constellationPrice = MakeClampedInt(Configuration.GeneratedConfig, $"{ConstellationWord} {constel.consName}", $"{constel.consName} constellationPrice", defPrice, $"Set the price to route to this {ConstellationWord} and its defaultMoon", 0, 9999);
                 constel.constelPrice = constellationPrice.Value;
-
             }
-
         }
+
 
         //iterate through extendedLevel list
         internal static void GetLLLStuffForConfig(List<ExtendedLevel> extendedLevels, List<string> ignoreList)
@@ -296,7 +294,7 @@ namespace LethalConstellations.EventStuff
                 string moonName = BepinFriendlyString(extendedLevel.NumberlessPlanetName);
                 Plugin.Spam($"moonName is {moonName}");
 
-                if (moonName.Length < 1)
+                if (moonName.Length < 1) //skip too short name
                     continue;
 
                 if (ignoreList.Contains(moonName.ToLower())) //ignore moons specified by user config
