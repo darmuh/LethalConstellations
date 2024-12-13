@@ -64,23 +64,19 @@ namespace LethalConstellations.PluginCore
                 return;
             }
 
-            int currentID = currentConstellation.ConstellationID;
+            int distanceCurrentConstellation = currentConstellation.Distance;
 
             foreach (var constellation in constellations)
             {
-                if (constellation == currentConstellation)
-                {
-                    DistanceCurrentContellation = constellation.Distance;
+                int calculatedDistance = Math.Abs(distanceCurrentConstellation - constellation.Distance);
 
-                }
-                int LightYearsForEach = Math.Abs(DistanceCurrentContellation - constellation.Distance);
-                constellation.Distance = LightYearsForEach;
-                constellation.constelPrice = PriceOfOneLightYear * LightYearsForEach;
-                constellation.LightYearsToTravel = LightYearsForEach;
+                constellation.constelPrice = PriceOfOneLightYear * calculatedDistance;
+                constellation.LightYearsToTravel = calculatedDistance;
 
-                Plugin.Spam($"Updated price for {constellation.consName} (ID: {constellation.ConstellationID}): {constellation.constelPrice}");
+                Plugin.Spam($"Updated price for {constellation.consName} (ID: {constellation.ConstellationID}): {constellation.constelPrice}, Distance: {calculatedDistance} LY");
             }
         }
+
 
         internal static void UpdateCNames(List<ClassMapper> constellations, Dictionary<string, string> fixedNames)
         {
