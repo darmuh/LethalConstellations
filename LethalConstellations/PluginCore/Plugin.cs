@@ -1,9 +1,11 @@
-﻿using BepInEx;
+using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using LethalConstellations.ConfigManager;
 using LethalConstellations.EventStuff;
+using LethalConstellations.PluginCore;
 using System.IO;
+using static LethalConstellations.PluginCore.Collections;
 
 
 namespace LethalConstellations
@@ -30,7 +32,7 @@ namespace LethalConstellations
         public Terminal Terminal;
         public TerminalNode dummyNode;
 
-        private void Awake()
+        public void Awake()
         {
             instance = this;
             Log = base.Logger;
@@ -68,5 +70,4 @@ namespace LethalConstellations
             Log.LogWarning(message);
         }
     }
-
 }

@@ -1,16 +1,28 @@
-﻿
+
+using System;
 using LethalLevelLoader;
 using System.Collections.Generic;
+using JetBrains.Annotations;
+using UnityEngine.Rendering;
 
 namespace LethalConstellations.PluginCore
 {
+
     public class ClassMapper
     {
+        private static int DistanceCurrentContellation;
+        static public int PriceOfOneLightYear = 5;
+
+        private static int _counter = 0;
+        public int ConstellationID { get; private set; }
+
         public string consName;
         public List<string> constelMoons = [];
         public List<string> stayHiddenMoons = [];
         public bool buyOnce;
         public int constelPrice;
+        public int Distance;
+        public int LightYearsToTravel;
         public string defaultMoon;
         public ExtendedLevel defaultMoonLevel;
         internal string menuText;
@@ -22,15 +34,49 @@ namespace LethalConstellations.PluginCore
         public bool canRouteCompany;
         internal string shortcutList;
 
-        internal ClassMapper(string cName, int cPrice = 0, string defMoon = "", string menuText = "")
+
+        internal ClassMapper(string cName, int cPrice = 0, string defMoon = "", string menuText = "", int clightyears = 0, int cDistanceFromStart = 1)
         {
+            this.Distance = cDistanceFromStart;
+            this.LightYearsToTravel = clightyears;
+            this.ConstellationID = ++_counter;
             this.consName = cName;
             this.constelPrice = cPrice;
             this.defaultMoon = defMoon;
             this.menuText = menuText;
             this.oneTimePurchase = false;
             this.isLocked = false;
+
         }
+
+        internal static void UpdatePricesBasedOnCurrent(List<ClassMapper> constellations)
+        {
+            if (string.IsNullOrEmpty(Collections.CurrentConstellation))
+            {
+                Plugin.Spam("No current constellation is set.");
+                return;
+            }
+
+            var currentConstellation = constellations.Find(c => c.consName == Collections.CurrentConstellation);
+            if (currentConstellation == null)
+            {
+                Plugin.Spam($"Current constellation '{Collections.CurrentConstellation}' not found in the list.");
+                return;
+            }
+
+            int distanceCurrentConstellation = currentConstellation.Distance;
+
+            foreach (var constellation in constellations)
+            {
+                int calculatedDistance = Math.Abs(distanceCurrentConstellation - constellation.Distance);
+
+                constellation.constelPrice = PriceOfOneLightYear * calculatedDistance;
+                constellation.LightYearsToTravel = calculatedDistance;
+
+                Plugin.Spam($"Updated price for {constellation.consName} (ID: {constellation.ConstellationID}): {constellation.constelPrice}, Distance: {calculatedDistance} LY");
+            }
+        }
+
 
         internal static void UpdateCNames(List<ClassMapper> constellations, Dictionary<string, string> fixedNames)
         {

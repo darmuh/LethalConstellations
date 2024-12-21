@@ -1,4 +1,4 @@
-﻿using LethalConstellations.ConfigManager;
+using LethalConstellations.ConfigManager;
 using LethalLevelLoader;
 using System.Collections.Generic;
 using static LethalConstellations.PluginCore.Collections;

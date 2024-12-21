@@ -1,4 +1,4 @@
-﻿using LethalConstellations.Compat;
+using LethalConstellations.Compat;
 using LethalConstellations.ConfigManager;
 using LethalConstellations.PluginCore;
 using LethalLevelLoader;
@@ -50,6 +50,7 @@ namespace LethalConstellations.EventStuff
         {
             MenuStuff.PreInit();
             InitSave();
+            ClassMapper.UpdatePricesBasedOnCurrent(Collections.ConstellationStuff);
         }
 
         public static void OnLevelChange()

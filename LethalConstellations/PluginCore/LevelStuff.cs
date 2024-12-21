@@ -1,4 +1,4 @@
-﻿using LethalConstellations.Compat;
+using LethalConstellations.Compat;
 using LethalConstellations.ConfigManager;
 using LethalConstellations.EventStuff;
 using LethalLevelLoader;
@@ -38,7 +38,7 @@ namespace LethalConstellations.PluginCore
                 NewEvents.RouteConstellationSuccess.Invoke(); //for other mods to subscribe to successful route
 
                 OneTimePurchaseCheck(constellationName);
-
+                ClassMapper.UpdatePricesBasedOnCurrent(ConstellationStuff);
                 return $"Travelling to {ConstellationWord} - {CurrentConstellation.ToUpper()}\nYour new credits balance: ${newCreds}\r\n\r\n";
             }
             else
@@ -51,6 +51,7 @@ namespace LethalConstellations.PluginCore
                 return failText;
 
             return $"Travel to {ConstellationWord} - {constellationName.ToUpper()}?\n\n\n\n\n\n\n\n\n\n\n\nPlease CONFIRM or DENY.\n";
+
 
         }
 
