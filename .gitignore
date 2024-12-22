@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /LethalConstellations/_Release Files/LethalConstellations.dll
 /LethalConstellations/_Release Files/OpenLib.dll
+/LethalConstellations/stuff.txt
+/LethalConstellations/app.config
