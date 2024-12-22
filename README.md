@@ -1,6 +1,6 @@
 # Lethal Constellations
 
-## WARNING: BEFORE ANY UPDATE OF THIS MOD PLEASE BACKUP YOUR EXITING CONFIG OR YOUR DATA CAN/WILL BE LOST
+## WARNING: BEFORE ANY UPDATE OF THIS MOD PLEASE BACKUP YOUR EXISTING CONFIG OR YOUR DATA CAN/WILL BE LOST
 
 ### Separate your moons list by constellations. 
 - This mod will dynamically change your moons list depending on a configurable constellations listing.
