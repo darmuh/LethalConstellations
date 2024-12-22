@@ -140,6 +140,10 @@
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Compat\LConfig.cs" />
@@ -150,7 +154,6 @@
     <Compile Include="EventStuff\LLLStuff.cs" />
     <Compile Include="EventStuff\Subscribers.cs" />
     <Compile Include="ConfigManager\Configuration.cs" />
-    <Compile Include="PluginCore\MainMenu.cs" />
     <Compile Include="PluginCore\MenuStuff.cs" />
     <Compile Include="PluginCore\MoonStuff.cs" />
     <Compile Include="PluginCore\Plugin.cs" />

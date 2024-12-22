@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.3.0]
+
+## WARNING: BEFORE UPDATING PLEASE BACKUP YOUR CONFIG OR YOUR DATA CAN/WILL BE LOST
+
+ - Removed Faux Keyword support and regular terminal keyword creation by default in favor of new interactive terminal menu.
+	- Menu controls are configurable in the new ``Menu Settings`` config section (main config).
+	- You can also choose to display any number of constellations per page depending on the level of detail your menu text has. (From 1 - 100)
+	- If you would still like to have regular terminal keyword support for routing to specific constellations, you can use each constellation's ``shortcuts`` config item to add keywords for routing to it's constellation.
+	- This should resolve many of the conflicting keyword issues that limited your ability to name your constellations what you wanted.
+ - With the new interactive menu, constellation names can be any length and contain any characters with exception to ``\``, ``\n``, ``\``, ``"``, ``[``, and ``]`` due to Bepinex Config limitations.
+ - Added new positional data related configuration items, including:
+	- ``AddConstellationPositionData`` in the main config will enable configuration items that assign coordinates to each constellation.
+		- When the above is enabled, ``PostionalPricingMode`` config items will be created for each constellation in the generated config.
+			- Determines how pricing for the constellation will be affected by it's coordinates.
+			- ``UseOriginalPrice`` will use constellationPrice configuration item as starting route cost and the CostPerDistanceUnit value will not be used.
+			- ``SetPriceByDistance`` (default) will ignore constellationPrice and set constellation's price to a new price value based on it's starting position (relative to the starter constellation).
+			- ``None`` will not update pricing in any way based on positional data.
+	- ``CostPerDistanceUnit``
+		- When ``PostionalPricingMode`` is set to ``SetPriceByDistance``, this value will be used to determine how many credits each unit of distance is worth.
+		- Example: A distance of 50 will update the route cost for the constellation to 100 when CostPerDistanceUnit is set to ``2``.
+	- Thank you @unluckyjori for the PR on github and assistance in getting this feature started. Even though I ended up rewriting most of your work I do appreciate you getting the ball rolling on this so I could finally get this feature implemented in some fashion. Big shoutout to them.
+	- Please also note that the distance feature is still very much in testing. If you find any issues please report them on the [github](https://github.com/darmuh/LethalConstellations) and/or the [discord thread](https://discord.com/channels/1168655651455639582/1269406512313405571).
+ - In general, the mod has been lightly reworked so some old issues may have been resolved and on the flip side some old resolved issues may reappear.
+	- If you experience any issues with 0.3.0 please revert back to 0.2.8 as a known good version. This mod will not receive any hotfixes until after the new year.
+
 ## [0.2.8]
  - Luigi's Mansion hotfix (fixes crashes related to trying to run this mod with this moon)
 	- Will now parse extendedLevel.NumberlessPlanetName from LLL to ensure it's compatibile with Bepinex config naming requirements.

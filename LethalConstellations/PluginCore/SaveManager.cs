@@ -1,6 +1,5 @@
 using LethalConstellations.Compat;
 using LethalConstellations.ConfigManager;
-using LethalLevelLoader;
 using OpenLib.Common;
 using System.Collections.Generic;
 using static LethalConstellations.PluginCore.Collections;
@@ -41,15 +40,15 @@ namespace LethalConstellations.PluginCore
             if (!GameNetworkManager.Instance.isHostingGame)
                 return;
 
-            if(StartOfRound.Instance.gameStats.daysSpent == 0 && StartOfRound.Instance.defaultPlanet == StartOfRound.Instance.currentLevelID)
+            if (StartOfRound.Instance.gameStats.daysSpent == 0 && StartOfRound.Instance.defaultPlanet == StartOfRound.Instance.currentLevelID)
             {
-                if(Configuration.StartingConstellation.Value.Length > 0)
+                if (Configuration.StartingConstellation.Value.Length > 0)
                 {
-                    if(Configuration.StartingConstellation.Value == "~random~")
+                    if (Configuration.StartingConstellation.Value == "~random~")
                     {
                         ClassMapper starter = null!;
 
-                        if(Configuration.AcceptableStartingConstellations.Value.Length > 0)
+                        if (Configuration.AcceptableStartingConstellations.Value.Length > 0)
                         {
                             int chosenIndex;
                             List<string> acceptableStarters = CommonStringStuff.GetKeywordsPerConfigItem(Configuration.AcceptableStartingConstellations.Value, ',');
@@ -60,11 +59,11 @@ namespace LethalConstellations.PluginCore
                             {
                                 chosenIndex = Rand.Next(acceptableStarters.Count);
                                 loopCount++;
-                                if(ClassMapper.TryGetConstellation(ConstellationStuff, acceptableStarters[chosenIndex], out starter))
+                                if (ClassMapper.TryGetConstellation(ConstellationStuff, acceptableStarters[chosenIndex], out starter))
                                 {
                                     Plugin.Spam($"Random Starter Constellation Chosen! [ {starter.consName} ]");
                                 }
-                                else if(loopCount > 10)
+                                else if (loopCount > 10)
                                 {
                                     Plugin.WARNING($"FAILED TO GRAB A VALID RANDOM STARTER CONSTELLATION FROM LIST [ {Configuration.AcceptableStartingConstellations.Value} ]");
                                     Plugin.WARNING($"Setting Constellation to ANY random constellation from listing (Count:{ConstellationStuff.Count}");
@@ -72,34 +71,41 @@ namespace LethalConstellations.PluginCore
                                 }
 
                             } while (starter == null);
-                            
+
                         }
                         else
                             starter = ConstellationStuff[Rand.Next(ConstellationStuff.Count)];
-                        if (StartOfRound.Instance.currentLevel != starter.defaultMoonLevel.SelectableLevel)
-                        {
-                            StartOfRound.Instance.ChangeLevelServerRpc(starter.defaultMoonLevel.SelectableLevel.levelID, Plugin.instance.Terminal.groupCredits);
-                            StartOfRound.Instance.defaultPlanet = starter.defaultMoonLevel.SelectableLevel.levelID;
-                            Plugin.Spam($"Setting level to [ {starter.defaultMoonLevel.NumberlessPlanetName} ] from Random Starter Constellation!");
-                            return;
-                        }
 
-                        LevelStuff.AdjustToNewConstellation(starter.defaultMoon, starter.consName);
-                        StartOfRound.Instance.defaultPlanet = starter.defaultMoonLevel.SelectableLevel.levelID;
-                        Plugin.Spam($"Constellation set to [ {starter.consName} ] from Random Starter Constellation!");
-                        return;
+                        SetStarterConstellation(starter);
                     }
 
                     if (ClassMapper.TryGetConstellation(ConstellationStuff, Configuration.StartingConstellation.Value, out ClassMapper outConst))
-                    {
-                        StartOfRound.Instance.ChangeLevelServerRpc(outConst.defaultMoonLevel.SelectableLevel.levelID, Plugin.instance.Terminal.groupCredits);
-                        Plugin.Spam($"Setting level to [ {outConst.defaultMoonLevel.NumberlessPlanetName} ]");
-                        StartOfRound.Instance.defaultPlanet = outConst.defaultMoonLevel.SelectableLevel.levelID;
-                    }    
+                        SetStarterConstellation(outConst);
                     else
                         Plugin.WARNING($"Unable to set constellation to StartingConstellation config - [ {Configuration.StartingConstellation.Value} ]");
                 }
             }
+        }
+
+        internal static void SetStarterConstellation(ClassMapper starter)
+        {
+            if (StartOfRound.Instance.currentLevel != starter.defaultMoonLevel.SelectableLevel)
+            {
+                StartOfRound.Instance.ChangeLevelServerRpc(starter.defaultMoonLevel.SelectableLevel.levelID, Plugin.instance.Terminal.groupCredits);
+                Plugin.Spam($"Setting level to [ {starter.defaultMoonLevel.NumberlessPlanetName} ]");
+            }
+
+            LevelStuff.AdjustToNewConstellation(starter.defaultMoon, starter.consName);
+            StartOfRound.Instance.defaultPlanet = starter.defaultMoonLevel.SelectableLevel.levelID;
+            Plugin.Spam($"Starter Constellation set to [ {starter.consName} ]!");
+            StarterConstellation = starter;
+            SetAllDistances();
+        }
+
+        internal static void SetAllDistances()
+        {
+            foreach (ClassMapper constel in ConstellationStuff)
+                constel.SetOriginalDistance();
         }
 
         internal static void InitUnlocks()
@@ -134,7 +140,6 @@ namespace LethalConstellations.PluginCore
             if (!ES3.KeyExists("LethalConstellations_Current", GameNetworkManager.Instance.currentSaveFileName))
             {
                 Plugin.Spam("Creating save key for LethalConstellations_Current");
-                LevelStuff.GetCurrentConstellation(LevelManager.CurrentExtendedLevel.NumberlessPlanetName);
                 string current = CurrentConstellation;
                 Plugin.Spam($"CurrentConstellation: {CurrentConstellation}");
                 ES3.Save<string>("LethalConstellations_Current", CurrentConstellation, GameNetworkManager.Instance.currentSaveFileName);

@@ -1,5 +1,4 @@
 using LethalConstellations.Compat;
-using LethalConstellations.ConfigManager;
 using LethalConstellations.PluginCore;
 using LethalLevelLoader;
 using OpenLib.Events;
@@ -12,7 +11,8 @@ namespace LethalConstellations.EventStuff
         public static void Subscribe()
         {
             EventManager.TerminalAwake.AddListener(OnTerminalAwake);
-            EventManager.TerminalStart.AddListener(OnTerminalStart);
+            //EventManager.TerminalStart.AddListener(OnTerminalStart);
+            EventManager.TerminalQuit.AddListener(OnTerminalQuit);
             EventManager.TerminalLoadNewNode.AddListener(OnLoadNode);
             EventManager.StartOfRoundChangeLevel.AddListener(OnLevelChange);
             //EventManager.OnClientConnect.AddListener(OnClientConnected);
@@ -28,8 +28,17 @@ namespace LethalConstellations.EventStuff
             Plugin.MoreLogs($"Setting Plugin.instance.Terminal");
         }
 
+        public static void OnTerminalQuit()
+        {
+            if (MenuStuff.ConstellationsMenu.inMenu)
+                MenuStuff.ExitMenu(false);
+        }
+
         public static void NewLobbyStuff()
         {
+            MenuStuff.PreInit();
+            InitSave();
+
             if (GameNetworkManager.Instance.isHostingGame)
                 InitHostStuff();
         }
@@ -46,18 +55,11 @@ namespace LethalConstellations.EventStuff
             }
         }
 
-        public static void OnTerminalStart()
-        {
-            MenuStuff.PreInit();
-            InitSave();
-            ClassMapper.UpdatePricesBasedOnCurrent(Collections.ConstellationStuff);
-        }
-
         public static void OnLevelChange()
         {
             Plugin.Spam("setting currentLevel");
             Plugin.Spam($"{LevelManager.CurrentExtendedLevel.NumberlessPlanetName}, {LevelManager.CurrentExtendedLevel.IsRouteLocked}, {LevelManager.CurrentExtendedLevel.IsRouteHidden}, {LevelManager.CurrentExtendedLevel.LockedRouteNodeText}");
-            LevelStuff.GetCurrentConstellation(LevelManager.CurrentExtendedLevel.NumberlessPlanetName);
+            LevelStuff.GetCurrentConstellation(LevelManager.CurrentExtendedLevel.NumberlessPlanetName, false);
         }
 
         public static void OnStartup()

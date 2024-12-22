@@ -1,8 +1,7 @@
-using LethalConstellations.Compat;
 using LethalConstellations.ConfigManager;
-using LethalConstellations.EventStuff;
 using LethalLevelLoader;
 using System.Collections.Generic;
+using UnityEngine;
 using static LethalConstellations.PluginCore.Collections;
 
 namespace LethalConstellations.PluginCore
@@ -12,252 +11,13 @@ namespace LethalConstellations.PluginCore
         internal static bool gotConstellation = false;
         internal static bool cancelConfirmation = false;
         internal static string constellationName = "";
-
-
-        internal static string RouteConstellation()
-        {
-            if (CantRouteConst(out string failText))
-                return failText;
-
-            string defaultLevel = GetDefaultLevel(constellationName);
-            int newLevelID = GetLevelID(defaultLevel);
-            if (newLevelID != -1)
-            {
-                int getPrice = GetConstPrice(constellationName);
-                if (Plugin.instance.Terminal.groupCredits < getPrice)
-                    return $"Unable to afford to travel to {ConstellationWord} - {constellationName.ToUpper()}\r\n\r\n";
-                CurrentConstellation = constellationName;
-                Plugin.Spam($"oldcreds: {Plugin.instance.Terminal.groupCredits}");
-                int newCreds = Plugin.instance.Terminal.groupCredits - getPrice;
-                Plugin.Spam($"newCreds amount = {Plugin.instance.Terminal.groupCredits}");
-                StartOfRound.Instance.ChangeLevelServerRpc(newLevelID, newCreds);
-                gotConstellation = false;
-
-                if (getPrice > 0)
-                    Plugin.instance.Terminal.PlayTerminalAudioServerRpc(0);
-                NewEvents.RouteConstellationSuccess.Invoke(); //for other mods to subscribe to successful route
-
-                OneTimePurchaseCheck(constellationName);
-                ClassMapper.UpdatePricesBasedOnCurrent(ConstellationStuff);
-                return $"Travelling to {ConstellationWord} - {CurrentConstellation.ToUpper()}\nYour new credits balance: ${newCreds}\r\n\r\n";
-            }
-            else
-                return "ERROR: Unable to load constellation default level!\r\n\r\n";
-        }
-
-        internal static string AskRouteConstellation()
-        {
-            if (CantRouteConst(out string failText))
-                return failText;
-
-            return $"Travel to {ConstellationWord} - {constellationName.ToUpper()}?\n\n\n\n\n\n\n\n\n\n\n\nPlease CONFIRM or DENY.\n";
-
-
-        }
-
-        internal static string DenyRouteConstellation()
-        {
-            string item = constellationName.ToUpper();
-            ResetConstVars();
-
-            return $"Route to {ConstellationWord} {item} has been canceled.\r\n\r\n\r\n";
-        }
+        internal static ClassMapper nextConstellation;
 
         internal static void ResetConstVars()
         {
             cancelConfirmation = true;
             gotConstellation = false;
             constellationName = "";
-        }
-
-        internal static bool CantRouteConst(out string failText)
-        {
-            Plugin.Spam($"CantRouteConst");
-
-            if (ConstellationStuff.Count < 1)
-            {
-                ResetConstVars();
-                failText = "Configuration failure detected!\r\n\r\n";
-                return true;
-            }
-
-            if (StartOfRound.Instance.travellingToNewLevel)
-            {
-                ResetConstVars();
-                failText = "Ship is currently in motion, unable to change routing at this time!\r\n\r\n";
-                return true;
-            }
-
-            if (!StartOfRound.Instance.inShipPhase)
-            {
-                ResetConstVars();
-                failText = $"Ship needs to be in orbit in order to travel to new {ConstellationWord}!\r\n\r\n";
-                return true;
-            }
-
-            if (Plugin.instance.Terminal.screenText.text == null || Plugin.instance.Terminal.textAdded < 0)
-            {
-                ResetConstVars();
-                failText = $"Unable to determine terminal text\r\n\r\n";
-                return true;
-            }
-
-            if (Plugin.instance.Terminal.screenText.text.Length <= Plugin.instance.Terminal.textAdded)
-            {
-                ResetConstVars();
-                failText = $"Unable to determine terminal command given\r\n\r\n";
-                return true;
-            }
-
-
-            Plugin.Spam("Getting screen text");
-            string screen = Plugin.instance.Terminal.screenText.text.Substring(Plugin.instance.Terminal.screenText.text.Length - Plugin.instance.Terminal.textAdded);
-            if (screen.ToLower().StartsWith("route"))
-                screen = screen.Substring(5).TrimStart();
-            else if(screen.ToLower().StartsWith("info"))
-            {
-                screen = screen.Substring(4).TrimStart();
-                if (ClassMapper.TryGetConstellation(ConstellationStuff, screen, out ClassMapper infoConst))
-                {
-                    failText = $"{infoConst.infoText}\r\n";
-                    ResetConstVars();
-                    return true;
-                }
-                else
-                {
-                    ResetConstVars();
-                    failText = $"Unable to determine terminal command given\r\n\r\n";
-                    return true;
-                }
-            }
-            Plugin.Spam(screen);
-            Plugin.Spam($"{ConstellationStuff.Count}");
-            if (ClassMapper.TryGetConstellation(ConstellationStuff, screen, out ClassMapper outConst))
-            {
-                Plugin.Spam($"Current Constellation: {CurrentConstellation}");
-                if (CurrentConstellation == outConst.consName)
-                {
-                    failText = $"You are already located at {ConstellationWord} - {CurrentConstellation}...\r\n\r\n";
-                    ResetConstVars();
-                    return true;
-                }
-                else
-                {
-                    if (!gotConstellation)
-                    {
-                        constellationName = outConst.consName;
-                        Plugin.Spam($"keyword detected setting constellationName - {constellationName}");
-                        gotConstellation = true;
-                    }
-                }
-
-                if (outConst.isLocked)
-                {
-                    ResetConstVars();
-                    failText = $"Unable to travel to {outConst.consName}. {ConstellationWord} is locked!\r\n\r\n";
-                    return true;
-                }
-            }
-
-            failText = "";
-            return false;
-
-        }
-
-        internal static int GetConstPrice(string constName)
-        {
-            if (ConstellationStuff.Count < 1)
-                return 0;
-
-            foreach (ClassMapper item in ConstellationStuff)
-            {
-                if (item.consName.ToLower() == constName.ToLower())
-                {
-                    if (!OneTimePurchaseDone(item))
-                        return item.constelPrice;
-                    else
-                    {
-                        Plugin.Spam($"{item.consName} is designated as a OneTimePurchase, and now costs 0 credits");
-                        return 0;
-                    }
-                }
-            }
-
-            return 0;
-        }
-
-        internal static void OneTimePurchaseCheck(string constName)
-        {
-            if (ConstellationStuff.Count < 1)
-                return;
-
-            foreach (ClassMapper item in ConstellationStuff)
-            {
-                if (item.consName.ToLower() == constName.ToLower())
-                {
-                    if (!item.buyOnce || !Plugin.instance.LethalNetworkAPI)
-                        return;
-                    else
-                    {
-                        if (!item.oneTimePurchase)
-                        {
-                            Plugin.Spam("Updating oneTimePurchase to true");
-                            item.oneTimePurchase = true;
-                            if (!ConstellationsOTP.Contains(item.consName))
-                            {
-                                ConstellationsOTP.Add(item.consName);
-                                SaveManager.SaveUnlocks(ConstellationsOTP);
-                                NetworkThings.SyncUnlockSet(ConstellationsOTP);
-                            }
-                            else
-                                Plugin.WARNING($"--- Error with oneTimePurchaseCheck, already in list ---");
-
-                        }
-                    }
-                }
-            }
-        }
-
-        internal static bool OneTimePurchaseDone(ClassMapper item)
-        {
-            if (!item.buyOnce)
-                return false;
-            else
-            {
-                if (item.oneTimePurchase)
-                    return true;
-            }
-
-            return false;
-        }
-
-        internal static string GetDefaultLevel(string constellation)
-        {
-            if (ConstellationStuff.Count < 1)
-                return "";
-
-            foreach (ClassMapper item in ConstellationStuff)
-            {
-                Plugin.Spam($"checking {item.consName} to {constellation}");
-                if (item.consName.ToLower() == constellation.ToLower())
-                    return item.defaultMoon;
-            }
-
-            return "";
-        }
-
-        internal static int GetLevelID(string levelName)
-        {
-            foreach (ExtendedLevel extendedLevel in PatchedContent.ExtendedLevels)
-            {
-                Plugin.Spam($"checking {extendedLevel.NumberlessPlanetName} vs {levelName}");
-                if (extendedLevel.NumberlessPlanetName.ToLower() == levelName.ToLower())
-                {
-                    return extendedLevel.SelectableLevel.levelID;
-                }
-            }
-
-            return -1;
         }
 
         internal static void UpdateLevelList(ClassMapper thisConstellation, bool enableMoons)
@@ -350,7 +110,7 @@ namespace LethalConstellations.PluginCore
         }
 
 
-        internal static void GetCurrentConstellation(string levelName)
+        internal static void GetCurrentConstellation(string levelName, bool mustUpdate)
         {
             if (levelName.Length == 0)
             {
@@ -358,7 +118,7 @@ namespace LethalConstellations.PluginCore
                 return;
             }
 
-            if (levelName.ToLower() == CompanyMoon.ToLower())
+            if (levelName.ToLower() == CompanyMoon.ToLower() && mustUpdate)
             {
                 DefaultConstellation();
                 return;
@@ -371,10 +131,55 @@ namespace LethalConstellations.PluginCore
                 if (lowerCaseMoons.Contains(levelName.ToLower()))
                 {
                     CurrentConstellation = item.consName;
+                    CurrentConstellationCM = item;
                     Plugin.Spam($"DefaultConstellation set to {CurrentConstellation}");
                     AdjustToNewConstellation(levelName, CurrentConstellation);
                 }
             }
+        }
+
+        internal static int GetConstPrice(ClassMapper item)
+        {
+            int price = item.constelPrice;
+            if (!Configuration.AddConstellationPositionData.Value)
+                return price;
+
+            if (item.positionalPriceMode == "None")
+                return price;
+
+            //Distance from current constellation
+            float currentDistance = Vector3.Distance(CurrentConstellationCM.RelativePosition, item.RelativePosition);
+
+            if (item.positionalPriceMode == "SetPriceByDistance")
+            {
+                price = Configuration.CostPerDistanceUnit.Value * (int)currentDistance;
+                return price;
+            }
+
+
+            if (item.originalDistance == 0)
+                item.originalDistance = 0.1f;
+
+            //get difference between current distance value and original distance value
+            //multiply the price by the current distance value divided by the original distance value
+            //closer diff is to 0, the lower the price should be
+            //if original currentDistance and current currentDistance are relatively the same, price does not get modified
+            //if original currentDistance is higher than current currentDistance, price should go down
+            //if original currentDistance is lower than current disance, price should go up
+            Plugin.Spam($"Getting Dynamic Price from PositionalData:\n\nPrice ({item.constelPrice}) * currentDistance ({currentDistance}) / originalDistance {item.originalDistance}");
+
+            float newValue = item.constelPrice * (currentDistance / item.originalDistance);
+
+            if (currentDistance > 0)
+                price = (int)newValue;
+            else
+                price = 0;
+
+            price = Mathf.Clamp(price, 0, 99999); //clamped for sanity
+
+            Plugin.Spam($"result - {price}");
+
+            return price;
         }
 
         internal static void DefaultConstellation()
@@ -395,12 +200,14 @@ namespace LethalConstellations.PluginCore
                     if (theConst.canRouteCompany)
                     {
                         AdjustToNewConstellation(theConst.defaultMoon, theConst.consName);
+                        CurrentConstellationCM = theConst;
                         return;
                     }
                 }
 
                 Plugin.WARNING("Unable to load default constellation from config item. Setting to first contellation in list.");
                 AdjustToNewConstellation(ConstellationStuff[0].defaultMoon, ConstellationStuff[0].consName);
+                CurrentConstellationCM = ConstellationStuff[0];
             }
         }
 

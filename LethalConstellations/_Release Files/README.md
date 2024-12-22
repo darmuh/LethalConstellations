@@ -1,5 +1,7 @@
 # Lethal Constellations
 
+## WARNING: BEFORE ANY UPDATE OF THIS MOD PLEASE BACKUP YOUR EXITING CONFIG OR YOUR DATA CAN/WILL BE LOST
+
 ### Separate your moons list by constellations. 
 - This mod will dynamically change your moons list depending on a configurable constellations listing.
 
@@ -11,11 +13,12 @@
 	- Static config will dictate what is generated in the generated config.
 	- Generated config is generated after first lobby load.
 		- Currently the generated config cannot be modified using LethalConfig.
+- Interactive constellations menu!
+	- Customizable menu controls
+	- No more need to type multiple keywords, just type your constellation keyword and start routing from the menu!
 - Customizable keywords/text.
 	- Dont like the word constellation? Change it in the config!
-	- This mod will attempt to replace any pre-existing keywords from the config with radarbooster names as a fail safe.
-		- Please avoid overwriting any base-game keywords or other mods' keywords.
-		- If a terminal keyword already exists for any of the names you designate, they will be changed.
+	- When adding terminal keywords, this mod will NOT replace any already existing keywords.
 	- Customizable text for all different types of terminal commands relating to the constellations.
 	- Optional shortcut keywords can also be added to each constellation.
 - Current Constellation will be updated on lobby load, works between save files!
@@ -23,6 +26,7 @@
 - The possible starting constellations can also be fine tuned in the config to a set list when using random starter constellations.
 - Moon prices can also be modified by this mod or left to be handled elsewhere.
 - Set routing to a specific constellation to cost credits or allow for your constellations to be free.
+- By assigning positional data you can also set your constellations to dynamically update it's pricing based on it's current distance using an algorithm of your choice!
 - Set a constellation to be a one-time-purchase, this purchase will be remembered for each save file.
 	- In order to sync between players this feature requires [LethalNetworkAPI](https://thunderstore.io/c/lethal-company/p/xilophor/LethalNetworkAPI/) to be present.
 - Routing to a new constellation will take you to that constellation's default moon.
@@ -37,6 +41,7 @@
 ### For other mod devs looking to add compatibility:
 - Subscribe to the RouteConstellationSuccess event in NewEvents.cs to call your own code when routing to a new constellation.
 - Access ConstellationStuff in Collections.cs for a listing of all constellations and their ClassMapper.cs properties
+- Feel free to leave me a message on the [github page](https://github.com/darmuh/LethalConstellations) or the [discord thread](https://discord.com/channels/1168655651455639582/1269406512313405571) with anything you might need to build compatibility or external features.
 
 ### Having issues setting up the config?
 - Try [OpenLib's Bepinex Config Management Webpage (v0.1.2)](https://darmuh.github.io/OpenLib/OpenLib/Website/Examples/ConfigManagement.html)

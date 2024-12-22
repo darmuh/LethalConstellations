@@ -3,16 +3,14 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using LethalConstellations.ConfigManager;
 using LethalConstellations.EventStuff;
-using LethalConstellations.PluginCore;
 using System.IO;
-using static LethalConstellations.PluginCore.Collections;
 
 
 namespace LethalConstellations
 {
     [BepInPlugin("com.github.darmuh.LethalConstellations", "LethalConstellations", (PluginInfo.PLUGIN_VERSION))]
     [BepInDependency("imabatby.lethallevelloader", "1.3.8")]
-    [BepInDependency("darmuh.OpenLib", "0.2.11")]
+    [BepInDependency("darmuh.OpenLib", "0.2.12")]
 
     public class Plugin : BaseUnityPlugin
     {
@@ -21,7 +19,7 @@ namespace LethalConstellations
         {
             public const string PLUGIN_GUID = "com.github.darmuh.LethalConstellations";
             public const string PLUGIN_NAME = "LethalConstellations";
-            public const string PLUGIN_VERSION = "0.2.8";
+            public const string PLUGIN_VERSION = "0.3.0";
         }
 
         internal static ManualLogSource Log;
