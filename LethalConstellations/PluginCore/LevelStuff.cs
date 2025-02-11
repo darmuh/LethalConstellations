@@ -1,6 +1,6 @@
+using HarmonyLib;
 using LethalConstellations.ConfigManager;
 using LethalLevelLoader;
-using System.Collections.Generic;
 using UnityEngine;
 using static LethalConstellations.PluginCore.Collections;
 
@@ -25,25 +25,23 @@ namespace LethalConstellations.PluginCore
             if (!enableMoons)
             {
                 Plugin.Spam($"Disabling all moons in: {thisConstellation.consName}");
-                foreach (string name in thisConstellation.constelMoons)
-                {
-                    AdjustExtendedLevel(name, thisConstellation, false);
-                }
+                thisConstellation.constelMoons.Do(name => AdjustExtendedLevel(name, thisConstellation, false));
             }
             else
             {
                 Plugin.Spam($"Enabling all moons in: {thisConstellation.consName}");
-                foreach (string name in thisConstellation.constelMoons)
-                {
-                    AdjustExtendedLevel(name, thisConstellation, true);
-                }
+                thisConstellation.constelMoons.Do(name => AdjustExtendedLevel(name, thisConstellation, true));
             }
         }
 
         internal static void AdjustExtendedLevel(string levelName, ClassMapper myConst, bool thisConstellation)
         {
             if (Plugin.instance.LethalMoonUnlocks)
+            {
+                Plugin.Spam("LethalMoonUnlocks will adjust extendedLevel status!");
                 return;
+            }
+                
 
             foreach (ExtendedLevel extendedLevel in PatchedContent.ExtendedLevels)
             {
@@ -110,32 +108,27 @@ namespace LethalConstellations.PluginCore
         }
 
 
-        internal static void GetCurrentConstellation(string levelName, bool mustUpdate)
+        internal static void GetCurrentConstellation(ExtendedLevel extendedLevel, bool mustUpdate)
         {
-            if (levelName.Length == 0)
+            if (extendedLevel.NumberlessPlanetName.Length == 0)
             {
                 Plugin.WARNING("Invalid levelName at GetCurrentConstellation");
                 return;
             }
 
-            if (levelName.ToLower() == CompanyMoon.ToLower() && mustUpdate)
+            if (extendedLevel.NumberlessPlanetName.ToLower() == CompanyMoon.ToLower() && mustUpdate)
             {
                 DefaultConstellation();
                 return;
             }
 
-            //ConstellationsToMoons.Add(extendedLevel.NumberlessPlanetName, levelToConstellation.Value);
-            foreach (ClassMapper item in ConstellationStuff)
-            {
-                List<string> lowerCaseMoons = item.constelMoons.ConvertAll(x => x.ToLower());
-                if (lowerCaseMoons.Contains(levelName.ToLower()))
-                {
-                    CurrentConstellation = item.consName;
-                    CurrentConstellationCM = item;
-                    Plugin.Spam($"DefaultConstellation set to {CurrentConstellation}");
-                    AdjustToNewConstellation(levelName, CurrentConstellation);
-                }
-            }
+            ConstellationStuff.DoIf(c => c.constelMoons.ConvertAll(x => x.ToLower()).Contains(extendedLevel.NumberlessPlanetName.ToLower()), (c) => 
+            { 
+                CurrentConstellation = c.consName; CurrentConstellationCM = c; 
+                Plugin.Spam($"DefaultConstellation set to {CurrentConstellation}"); 
+                AdjustToNewConstellation(extendedLevel.NumberlessPlanetName, c.consName); 
+            });
+
         }
 
         internal static int GetConstPrice(ClassMapper item)

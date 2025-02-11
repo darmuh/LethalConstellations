@@ -5,7 +5,9 @@
 ### Separate your moons list by constellations. 
 - This mod will dynamically change your moons list depending on a configurable constellations listing.
 
-**NOTE:** This mod is still in early development. Please report any issues you find as you are essentially a beta tester.
+**NOTE:** Wesleys Moons' Journey Mode disables the ability for this mod to unlock/unhide moons relating to it. 
+
+**NOTE:** This mod is still a work in progress. Please report any issues you find as you are essentially a beta tester.
 
 ### Current Features:
 - If a moon is not inside the current constellation it will be hidden from the moons page and locked (using LLL)

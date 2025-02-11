@@ -19,7 +19,7 @@ namespace LethalConstellations.EventStuff
             EventManager.GameNetworkManagerStart.AddListener(OnStartup);
             EventManager.StartOfRoundStart.AddListener(NewLobbyStuff);
             EventManager.ShipReset.AddListener(NewLobbyStuff);
-            LethalLevelLoader.Plugin.onSetupComplete += LLLStuff.LLLSetup;
+            LethalLevelLoader.Plugin.onLobbyInitialized += LLLStuff.LLLSetup;
         }
 
         public static void OnTerminalAwake(Terminal instance)
@@ -37,6 +37,8 @@ namespace LethalConstellations.EventStuff
         public static void NewLobbyStuff()
         {
             MenuStuff.PreInit();
+            MenuStuff.Init();
+            MenuStuff.InteractiveMenuStuff();
             InitSave();
 
             if (GameNetworkManager.Instance.isHostingGame)
@@ -59,7 +61,7 @@ namespace LethalConstellations.EventStuff
         {
             Plugin.Spam("setting currentLevel");
             Plugin.Spam($"{LevelManager.CurrentExtendedLevel.NumberlessPlanetName}, {LevelManager.CurrentExtendedLevel.IsRouteLocked}, {LevelManager.CurrentExtendedLevel.IsRouteHidden}, {LevelManager.CurrentExtendedLevel.LockedRouteNodeText}");
-            LevelStuff.GetCurrentConstellation(LevelManager.CurrentExtendedLevel.NumberlessPlanetName, false);
+            LevelStuff.GetCurrentConstellation(LevelManager.CurrentExtendedLevel, false);
         }
 
         public static void OnStartup()

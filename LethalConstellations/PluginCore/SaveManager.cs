@@ -1,3 +1,4 @@
+using HarmonyLib;
 using LethalConstellations.Compat;
 using LethalConstellations.ConfigManager;
 using OpenLib.Common;
@@ -99,13 +100,7 @@ namespace LethalConstellations.PluginCore
             StartOfRound.Instance.defaultPlanet = starter.defaultMoonLevel.SelectableLevel.levelID;
             Plugin.Spam($"Starter Constellation set to [ {starter.consName} ]!");
             StarterConstellation = starter;
-            SetAllDistances();
-        }
-
-        internal static void SetAllDistances()
-        {
-            foreach (ClassMapper constel in ConstellationStuff)
-                constel.SetOriginalDistance();
+            ConstellationStuff.Do(c => c.SetOriginalDistance());
         }
 
         internal static void InitUnlocks()

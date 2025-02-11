@@ -1,3 +1,4 @@
+using LethalConstellations.EventStuff;
 using LethalLevelLoader;
 using System.Collections.Generic;
 
@@ -42,6 +43,7 @@ namespace LethalConstellations.PluginCore
         internal static void Start()
         {
             MoonPrices.Clear();
+            LLLStuff.InitManualSetup();
         }
 
         internal static bool TryGetConstellationFromScreenText(out ClassMapper outConst, out string failText)

@@ -1,6 +1,7 @@
 using LethalConstellations.ConfigManager;
 using LethalLevelLoader;
 using System.Collections.Generic;
+using System.Linq;
 using static LethalConstellations.PluginCore.Collections;
 
 namespace LethalConstellations.PluginCore
@@ -22,16 +23,7 @@ namespace LethalConstellations.PluginCore
 
         internal static ExtendedLevel GetExtendedLevel(string levelName)
         {
-            foreach (ExtendedLevel extendedLevel in PatchedContent.ExtendedLevels)
-            {
-                if (extendedLevel.NumberlessPlanetName.ToLower() == levelName.ToLower())
-                {
-                    return extendedLevel;
-                }
-            }
-
-            Plugin.WARNING($"WARNING: Unable to get extendedLevel from {levelName}!!");
-            return null!;
+            return PatchedContent.ExtendedLevels.FirstOrDefault(e => e.NumberlessPlanetName.ToLower() == levelName.ToLower());
         }
 
         internal static bool TryGetMoon(string levelName, Dictionary<string, int> moonPrices, out int price)
@@ -41,16 +33,13 @@ namespace LethalConstellations.PluginCore
             if (moonPrices.Count == 0)
                 return false;
 
-            foreach (KeyValuePair<string, int> pair in moonPrices)
+            if (moonPrices.Any(pair => pair.Key.ToLower() == levelName.ToLower()))
             {
-                if (pair.Key.ToLower() == levelName.ToLower())
-                {
-                    price = pair.Value;
-                    return true;
-                }
+                price = moonPrices.FirstOrDefault(pair => pair.Key.ToLower() == levelName.ToLower()).Value;
+                return true;
             }
-
-            return false;
+            else
+                return false;
         }
     }
 }

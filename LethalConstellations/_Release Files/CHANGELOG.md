@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.3.1]
+ - Added ExitPage config item in Menu Settings section to determine what page opens when leaving the constellations menu.
+	- should work with any valid keyword and will load the help page if that fails.
+ - Updated LLL Version requirement to 1.4.8
+	- This was needed to fix some issues with constellation initialization on second lobby loads.
+ - Updated OpenLib requirement to latest version.
+ - Fixed various lobby reload issues
+ - Updated ``ConstellationSpecificInfoNodes`` description to mention that a valid shortcut is needed for this feature to work.
+	- Currently my method for adding info commands requires a valid keyword to add it for, maybe I'll change that in the future but for now this means shortcuts are required.
+ - Attempted to optimize a good portion of this codebase to use linq over foreach loops whenever possible
+
 ## [0.3.0]
 
 ## WARNING: BEFORE UPDATING PLEASE BACKUP YOUR CONFIG OR YOUR DATA CAN/WILL BE LOST

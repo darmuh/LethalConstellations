@@ -1,3 +1,4 @@
+using HarmonyLib;
 using LethalConstellations.ConfigManager;
 using LethalConstellations.EventStuff;
 using LethalLevelLoader;
@@ -18,6 +19,7 @@ namespace LethalConstellations.PluginCore
 {
     internal class MenuStuff
     {
+        internal static bool PreInitComplete = false;
         internal static InteractiveMenu ConstellationsMenu = new("Constellations_Menu", LoadPage, MenuSelect, ExitToTerminal);
         internal static List<Key> KeysBound = [];
         internal static bool ConfirmationCheck = false;
@@ -26,11 +28,14 @@ namespace LethalConstellations.PluginCore
 
         internal static void PreInit()
         {
+            if (PreInitComplete)
+                return;
+
             //update constellation category names here
             if (FixBadConfig())
                 Plugin.Spam($"ConstellationWord custom words updated to {ConstellationsWord}");
 
-            Init();
+            PreInitComplete = true;
         }
 
         internal static void LoadSpecial(string message)
@@ -179,10 +184,26 @@ namespace LethalConstellations.PluginCore
             ConfirmationCheck = false;
             yield return new WaitForEndOfFrame();
 
-            if (OpenLib.Plugin.instance.TerminalStuff)
-                TerminalStuffMod.LoadAndSync(Plugin.instance.Terminal.terminalNodes.specialNodes[13]);
+            TerminalNode next = null!;
+
+            if (DynamicBools.TryGetKeyword(Configuration.ExitPage.Value, out TerminalKeyword word))
+            {
+                next = word.specialKeywordResult;
+                Plugin.Spam($"Menu Close will open configured next page {word.word}");
+            }
             else
-                Plugin.instance.Terminal.LoadNewNode(Plugin.instance.Terminal.terminalNodes.specialNodes[13]);
+            {
+                next = Plugin.instance.Terminal.terminalNodes.specialNodes[13];
+                Plugin.Spam("Menu Close will open help page! (unable to get ExitPage keyword)");
+            }
+
+            if (OpenLib.Plugin.instance.TerminalStuff)
+            {
+                TerminalStuffMod.LoadAndSync(next);
+                Plugin.Spam($"TerminalStuff loadandsync for next page");
+            }
+            else
+                Plugin.instance.Terminal.LoadNewNode(next);
 
             yield return new WaitForEndOfFrame();
             CommonTerminal.ChangeCaretColor(CommonTerminal.CaretOriginal, false);
@@ -216,7 +237,6 @@ namespace LethalConstellations.PluginCore
             Plugin.Spam("ConstellationsKeywords()");
             ConstellationsKeywords();
             MoonStuff.ModifyMoonPrices();
-            InteractiveMenuStuff();
         }
 
         internal static void InteractiveMenuStuff()
@@ -299,74 +319,67 @@ namespace LethalConstellations.PluginCore
             Plugin.Spam($"{ConstellationCats.Count}");
 
             ConstellationsNode = AddingThings.AddNodeManual("Constellations_Menu", ConstellationsWord, EnterMenu, true, 0, defaultListing);
-            TerminalNode consInfo = BasicTerminal.CreateNewTerminalNode();
-            consInfo.displayText = $"{Configuration.ConstellationsInfoText.Value}\r\n";
-            consInfo.clearPreviousText = true;
-
-            if (DynamicBools.TryGetKeyword("info", out TerminalKeyword infokeyword))
-            {
-                AddingThings.AddCompatibleNoun(ref infokeyword, ConstellationsWord.ToLower(), consInfo);
-                Plugin.Spam("Adding info stuff");
-            }
+            AddInfoNode(ConstellationsWord, Configuration.ConstellationsInfoText.Value);
 
             if (Configuration.ConstellationsShortcuts.Value.Length > 0)
             {
 
                 List<string> shortcuts = CommonStringStuff.GetKeywordsPerConfigItem(Configuration.ConstellationsShortcuts.Value, ',');
-                foreach (string shortcut in shortcuts)
-                {
-                    AddingThings.AddKeywordToExistingNode(shortcut, ConstellationsNode);
-                    Plugin.Spam($"{shortcut} added to ConstellationsNode");
-
-                    if (infokeyword != null)
-                    {
-                        AddingThings.AddCompatibleNoun(ref infokeyword, shortcut.ToLower(), consInfo);
-                        Plugin.Spam($"{shortcut} info command added!");
-                    }
-
-                }
+                shortcuts.Do(s => AddShortCuts(s, ConstellationsNode));
+                shortcuts.Do(s => AddInfoNode(s, Configuration.ConstellationsInfoText.Value));
             }
 
-            foreach (ClassMapper cons in ConstellationStuff)
-                RouteShortcuts(cons, infokeyword);
+            ConstellationStuff.Do(cons => RouteShortcutsAndInfo(cons));
 
             AddHintsToNodes();
 
         }
 
+        internal static void AddInfoNode(string keyword, string infoText)
+        {
+            TerminalNode consInfo = BasicTerminal.CreateNewTerminalNode();
+            consInfo.displayText = $"{infoText}\r\n";
+            consInfo.clearPreviousText = true;
 
-        internal static void RouteShortcuts(ClassMapper cons, TerminalKeyword infokeyword)
+            if (DynamicBools.TryGetKeyword("info", out TerminalKeyword infokeyword))
+            {
+                AddingThings.AddCompatibleNoun(ref infokeyword, keyword.ToLower(), consInfo);
+                Plugin.Spam($"Adding info stuff for {keyword}");
+            }
+        }
+
+        internal static void AddShortCuts(string shortcut, TerminalNode existingNode)
+        {
+            AddingThings.AddKeywordToExistingNode(shortcut, existingNode);
+            Plugin.Spam($"{shortcut} added to existingNode");
+
+            
+        }
+
+
+        internal static void RouteShortcutsAndInfo(ClassMapper cons)
         {
             Plugin.Spam($"Setting shortcuts for:");
             Plugin.Spam(cons.consName);
-
-            if (cons.shortcutList.Count == 0)
-                return;
-            TerminalNode consInfo = null!;
 
             bool addInfo = cons.infoText.Length > 0;
 
             if (addInfo)
             {
-                consInfo = BasicTerminal.CreateNewTerminalNode();
-                consInfo.displayText = $"{Configuration.ConstellationsInfoText.Value}\r\n";
-                consInfo.clearPreviousText = true;
+                string kw = CommonStringStuff.RemovePunctuation(cons.consName);
+                AddInfoNode(kw, cons.infoText);
             }
+
+            if (cons.shortcutList.Count == 0)
+                return;
 
             RouteShortcutNode = AddingThings.AddNodeManual("Constellations_Menu", $"{cons.consName} shortcutword", RouteShortcut, true, 0, defaultListing);
-            foreach (string shortcut in cons.shortcutList)
-            {
-                AddingThings.AddKeywordToExistingNode(shortcut, RouteShortcutNode);
+            cons.shortcutList.Do(s => AddShortCuts(s, RouteShortcutNode));
 
-                if (!addInfo)
-                    continue;
+            if (addInfo)
+                cons.shortcutList.Do(s => AddInfoNode(s, cons.infoText));
 
-                if (infokeyword != null)
-                {
-                    AddingThings.AddCompatibleNoun(ref infokeyword, shortcut.ToLower(), consInfo);
-                    Plugin.Spam($"{shortcut} info command added!");
-                }
-            }
+            
         }
 
         internal static void AddHintsToNodes()

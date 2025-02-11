@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using HarmonyLib;
 using LethalConstellations.Compat;
 using LethalConstellations.ConfigManager;
 using LethalConstellations.PluginCore;
@@ -17,46 +18,58 @@ namespace LethalConstellations.EventStuff
     internal class LLLStuff
     {
         internal static bool usingTags = false;
-        public static void LLLSetup()
-        {
-            Start();
 
+        internal static List<string> GetConstellations()
+        {
             if (Configuration.ConstellationList.Value.Length < 1)
-                ConstellationsList = GetDefaultConsellations();
+                return GetDefaultConsellations();
             else
             {
-                ConstellationsList = CommonStringStuff.GetKeywordsPerConfigItem(Configuration.ConstellationList.Value, ',');
-                ConstellationsList.RemoveAll(x => x.Length < 1);
+                List<string> constellations = CommonStringStuff.GetKeywordsPerConfigItem(Configuration.ConstellationList.Value, ',');
+                constellations.RemoveAll(x => x.Length < 1);
+                return constellations;
+            }
+        }
 
-                if (Configuration.ManualSetupListing.Value.Length > 0)
+        internal static void InitManualSetup()
+        {
+            ManualSetupList = [];
+
+            if (Configuration.ManualSetupListing.Value.Length > 0)
+            {
+                List<string> pairs = [.. Configuration.ManualSetupListing.Value.Split(';')];
+
+                foreach (string item in pairs)
                 {
-                    List<string> pairs = [.. Configuration.ManualSetupListing.Value.Split(';')];
-
-                    foreach (string item in pairs)
+                    List<string> items = [.. item.Split(':')];
+                    string keyVal = "FailedToParseConsName";
+                    for (int x = 0; x < items.Count; x++)
                     {
-                        List<string> items = [.. item.Split(':')];
-                        string keyVal = "FailedToParseConsName";
-                        for (int x = 0; x < items.Count; x++)
+                        if (!items[x].Contains(','))
                         {
-                            if (!items[x].Contains(','))
-                            {
-                                keyVal = items[x];
-                                continue;
-                            }
-
-                            List<string> allValues = [.. items[x].Split(',')];
-                            for (int i = 0; i < allValues.Count; i++)
-                            {
-                                //allvalues are moons, keyVal should be last parsed constellation name
-                                ManualSetupList.Add(allValues[i], keyVal); //moon, constellation
-                            }
+                            keyVal = items[x];
+                            continue;
                         }
 
+                        List<string> allValues = [.. items[x].Split(',')];
+                        for (int i = 0; i < allValues.Count; i++)
+                        {
+                            //allvalues are moons, keyVal should be last parsed constellation name
+                            ManualSetupList.Add(allValues[i], keyVal); //moon, constellation
+                        }
                     }
 
-
                 }
+
+
             }
+        }
+
+        public static void LLLSetup()
+        {
+            Plugin.Spam("LLLSetup has started!");
+            Start();
+            ConstellationsList = GetConstellations();
 
             if (ConstellationsList.Count != ConstellationsList.Distinct(StringComparer.CurrentCultureIgnoreCase).Count())
                 Plugin.WARNING($"REMOVING DUPLICATE CONSTELLATION NAMES!!\nOriginal [ {ConstellationsList.Count} ]\nDistinct [ {ConstellationsList.Distinct(StringComparer.CurrentCultureIgnoreCase).Count()} ]");
@@ -64,55 +77,19 @@ namespace LethalConstellations.EventStuff
             ConstellationsList = [.. ConstellationsList.Distinct(StringComparer.CurrentCultureIgnoreCase)]; //remove duplicates that would throw errors
 
             Plugin.Spam("ConstellationList:");
-            foreach (string item in ConstellationsList)
-                Plugin.Spam(item);
+            ConstellationsList.Do(x => Plugin.Spam(x));
 
             Plugin.Spam("ManualSetupList:");
-            foreach (KeyValuePair<string, string> pair in ManualSetupList)
-                Plugin.Spam($"{pair.Key} - {pair.Value}");
+            ManualSetupList.Do(x => Plugin.Spam($"{x.Key} - {x.Value}"));
 
             List<string> ignoreList = CommonStringStuff.GetKeywordsPerConfigItem(Configuration.IgnoreList.Value, ',');
             ignoreList = ignoreList.ConvertAll(s => s.ToLower());
             Plugin.Spam("ignoreList created");
 
-            foreach (string name in ConstellationsList)
-            {
-                string fixedName = CommonStringStuff.BepinFriendlyString(name);
-                ConfigEntry<string> menuText = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {fixedName}", $"{fixedName} menuText", $"Route to System $[price] [name][~n]Default Moon:[defaultmoon] [currentweather][~n][currentdistance] [optionals]", $"The text displayed for this {ConstellationWord}'s menu item\n[price] will display price information\n[name] will display the constellation name\n[~n] will create a new line\n[~t] will create a tab indent\n[defaultmoon] will display a constellation's default moon\n[currentweather] will display a moons current weather (retrieved from LLL)\n[currentdistance] will display the current distance value determined by positional data\n[optionals] will allow for other mods to add their own flavor text to this menu item.");
-
-                ConfigEntry<string> shortCuts = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {fixedName}", $"{fixedName} shortcuts", "", $"Specify a list of shortcuts to use for routing to the {fixedName} {ConstellationWord}.\nEach shortcut keyword is separated by a ','");
-
-                ConfigEntry<bool> isHiding = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {fixedName}", $"{fixedName} isHidden", false, $"Enable this to hide this {ConstellationWord} from the constellation listing");
-
-                ConfigEntry<bool> canGoCompany = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {fixedName}", $"{fixedName} canRouteCompany", true, $"Enable this to allow this {ConstellationWord} to route to the company moon");
-
-                ConfigEntry<bool> buyOnce = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {fixedName}", $"{fixedName} One-Time Purchase", false, $"Enable this to allow routing to this {ConstellationWord} for free after paying for it once");
-
-                ClassMapper constClass = new(name)
-                {
-                    menuText = menuText.Value,
-                    isHidden = isHiding.Value,
-                    canRouteCompany = canGoCompany.Value,
-                    shortcutList = CommonStringStuff.GetKeywordsPerConfigItem(shortCuts.Value, ','),
-                    buyOnce = buyOnce.Value
-                };
-
-                if (Configuration.ConstellationSpecificInfoNodes.Value)
-                {
-                    ConfigEntry<string> infoText = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {fixedName}", $"{fixedName} infoText", $"{ConstellationWord} - {fixedName}\n\n\nThis [ConstellationWord] contains moons in it. Route to it and find out which!\r\n\r\n", $"The text that displays with the info command for this {ConstellationWord}'s shortcut keywords");
-                    if (infoText.Value.Contains("[ConstellationWord]"))
-                        infoText.Value = infoText.Value.Replace("[ConstellationWord]", ConstellationWord);
-                    constClass.infoText = infoText.Value;
-                }
-
-                constClass.constelMoons = [];
-                constClass.stayHiddenMoons = [];
-                ConstellationStuff.Add(constClass);
-
-            }
+            ConstellationsList.Do(x => MapConstellation(x));
 
             Plugin.Spam("about to sort through extendedlevel");
-            GetLLLStuffForConfig(PatchedContent.ExtendedLevels, ignoreList);
+            PatchedContent.ExtendedLevels.Do(x=> MapExtendedLevel(x, ignoreList));
 
             SetDefaultMoon(ConstellationStuff);
 
@@ -121,6 +98,41 @@ namespace LethalConstellations.EventStuff
 
             RemoveOrphanedEntries(Configuration.GeneratedConfig);
             LethalConfigStuff();
+        }
+
+        internal static void MapConstellation(string name)
+        {
+            string fixedName = CommonStringStuff.BepinFriendlyString(name);
+            ConfigEntry<string> menuText = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {fixedName}", $"{fixedName} menuText", $"Route to System $[price] [name][~n]Default Moon:[defaultmoon] [currentweather][~n][currentdistance] [optionals]", $"The text displayed for this {ConstellationWord}'s menu item\n[price] will display price information\n[name] will display the constellation name\n[~n] will create a new line\n[~t] will create a tab indent\n[defaultmoon] will display a constellation's default moon\n[currentweather] will display a moons current weather (retrieved from LLL)\n[currentdistance] will display the current distance value determined by positional data\n[optionals] will allow for other mods to add their own flavor text to this menu item.");
+
+            ConfigEntry<string> shortCuts = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {fixedName}", $"{fixedName} shortcuts", "", $"Specify a list of shortcuts to use for routing to the {fixedName} {ConstellationWord}.\nEach shortcut keyword is separated by a ','");
+
+            ConfigEntry<bool> isHiding = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {fixedName}", $"{fixedName} isHidden", false, $"Enable this to hide this {ConstellationWord} from the constellation listing");
+
+            ConfigEntry<bool> canGoCompany = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {fixedName}", $"{fixedName} canRouteCompany", true, $"Enable this to allow this {ConstellationWord} to route to the company moon");
+
+            ConfigEntry<bool> buyOnce = MakeBool(Configuration.GeneratedConfig, $"{ConstellationWord} {fixedName}", $"{fixedName} One-Time Purchase", false, $"Enable this to allow routing to this {ConstellationWord} for free after paying for it once");
+
+            ClassMapper constClass = new(name)
+            {
+                menuText = menuText.Value,
+                isHidden = isHiding.Value,
+                canRouteCompany = canGoCompany.Value,
+                shortcutList = CommonStringStuff.GetKeywordsPerConfigItem(shortCuts.Value, ','),
+                buyOnce = buyOnce.Value
+            };
+
+            if (Configuration.ConstellationSpecificInfoNodes.Value)
+            {
+                ConfigEntry<string> infoText = MakeString(Configuration.GeneratedConfig, $"{ConstellationWord} {fixedName}", $"{fixedName} infoText", $"{ConstellationWord} - {fixedName}\n\n\nThis [ConstellationWord] contains moons in it. Route to it and find out which!\r\n\r\n", $"The text that displays with the info command for this {ConstellationWord}'s shortcut keywords");
+                if (infoText.Value.Contains("[ConstellationWord]"))
+                    infoText.Value = infoText.Value.Replace("[ConstellationWord]", ConstellationWord);
+                constClass.infoText = infoText.Value;
+            }
+
+            constClass.constelMoons = [];
+            constClass.stayHiddenMoons = [];
+            ConstellationStuff.Add(constClass);
         }
 
         internal static void LethalConfigStuff()
@@ -134,7 +146,6 @@ namespace LethalConstellations.EventStuff
         internal static List<string> GetDefaultConsellations()
         {
             List<string> fail = ["Alpha", "Bravo", "Charlie"];
-            List<string> ignore = ["safe", "corruption detected", "???"];
             List<string> tagsfromLLL = [];
             if (PatchedContent.ExtendedLevels.Count < 1)
                 return fail;
@@ -182,13 +193,7 @@ namespace LethalConstellations.EventStuff
 
         private static bool DoesLevelHaveTag(ExtendedLevel level, string query)
         {
-            foreach (ContentTag tag in level.ContentTags)
-            {
-                if (tag.contentTagName.ToLower() == query.ToLower())
-                    return true;
-            }
-
-            return false;
+            return level.ContentTags.Any(tag => tag.contentTagName.ToLower() == query.ToLower());
         }
 
         private static string GetFirstUniqueTag(ExtendedLevel level)
@@ -214,12 +219,8 @@ namespace LethalConstellations.EventStuff
         {
             string fail = GetDefaultCName(constList, level.NumberlessPlanetName);
 
-            foreach (string constel in constList)
-            {
-                if (DoesLevelHaveTag(level, constel))
-                    return constel;
-
-            }
+            if (constList.Any(constel => DoesLevelHaveTag(level, constel)))
+                return constList.Find(constel => DoesLevelHaveTag(level, constel));
 
             if (constList.Contains("Unknown Tier"))
                 return "Unknown Tier";
@@ -273,68 +274,60 @@ namespace LethalConstellations.EventStuff
             }
         }
 
-
-        //iterate through extendedLevel list
-        internal static void GetLLLStuffForConfig(List<ExtendedLevel> extendedLevels, List<string> ignoreList)
+        internal static void MapExtendedLevel(ExtendedLevel extendedLevel, List<string> ignoreList)
         {
-            foreach (ExtendedLevel extendedLevel in extendedLevels)
+            if (extendedLevel == null) //skip null extendedLevel (this should never happen but just in case lol)
+                return;
+
+            string moonName = CommonStringStuff.BepinFriendlyString(extendedLevel.NumberlessPlanetName);
+            Plugin.Spam($"moonName is {moonName}");
+
+            if (moonName.Length < 1) //skip too short name
+                return;
+
+            if (ignoreList.Contains(moonName.ToLower())) //ignore moons specified by user config
+                return;
+
+            if (moonName.ToLower() == CompanyMoon.ToLower()) //ignore company moon
+                return;
+
+            string defaultValue = GetDefaultCName(ConstellationsList, moonName);
+            Plugin.Spam($"{moonName} default constellation set to - " + defaultValue);
+
+            ConfigEntry<int> levelPrice = MakeClampedInt(Configuration.GeneratedConfig, "Moons", $"{moonName} Price", extendedLevel.RoutePrice, "Set a custom route price for this moon (should autopopulate with the correct default price)", 0, 99999);
+
+            ConfigEntry<bool> stayHiding = MakeBool(Configuration.GeneratedConfig, "Moons", $"{moonName} Stay Hidden", extendedLevel.IsRouteHidden, $"Set this to true to keep {moonName} hidden even when you're in it's {ConstellationWord}");
+
+            if (usingTags)
             {
-                if (extendedLevel == null) //skip null extendedLevel (this should never happen but just in case lol)
-                    continue;
+                string tagConstellation = GetTagInfo(extendedLevel, ConstellationsList);
+                ConfigEntry<string> levelToConstellation = MakeClampedString(Configuration.GeneratedConfig, "Moons", $"{moonName} {ConstellationWord}", tagConstellation, $"Specify which {ConstellationWord} {moonName} belongs to.\nClamped to what is set in [ConstellationList] (default listing)", new AcceptableValueList<string>([.. ConstellationsList]));
+                AddToConstelMoons(moonName, levelToConstellation.Value, stayHiding.Value);
+            }
+            else
+            {
+                ConfigEntry<string> levelToConstellation = MakeString(Configuration.GeneratedConfig, "Moons", $"{moonName} {ConstellationWord}", defaultValue, $"Specify which {ConstellationWord} {moonName} belongs to.\nShould match an item from [ConstellationList]\nIf adding to multiple {ConstellationsWord}, separate each {ConstellationWord} by a comma.\nWill be autoset to a random {ConstellationWord} if not matching one.");
 
-                string moonName = CommonStringStuff.BepinFriendlyString(extendedLevel.NumberlessPlanetName);
-                Plugin.Spam($"moonName is {moonName}");
-
-                if (moonName.Length < 1) //skip too short name
-                    continue;
-
-                if (ignoreList.Contains(moonName.ToLower())) //ignore moons specified by user config
-                    continue;
-
-                if (moonName.ToLower() == CompanyMoon.ToLower()) //ignore company moon
-                    continue;
-
-                string defaultValue = GetDefaultCName(ConstellationsList, moonName);
-                Plugin.Spam($"{moonName} default constellation set to - " + defaultValue);
-
-                ConfigEntry<int> levelPrice = MakeClampedInt(Configuration.GeneratedConfig, "Moons", $"{moonName} Price", extendedLevel.RoutePrice, "Set a custom route price for this moon (should autopopulate with the correct default price)", 0, 99999);
-
-                ConfigEntry<bool> stayHiding = MakeBool(Configuration.GeneratedConfig, "Moons", $"{moonName} Stay Hidden", extendedLevel.IsRouteHidden, $"Set this to true to keep {moonName} hidden even when you're in it's {ConstellationWord}");
-
-                if (usingTags)
+                if (levelToConstellation.Value.Contains(","))
                 {
-                    string tagConstellation = GetTagInfo(extendedLevel, ConstellationsList);
-                    ConfigEntry<string> levelToConstellation = MakeClampedString(Configuration.GeneratedConfig, "Moons", $"{moonName} {ConstellationWord}", tagConstellation, $"Specify which {ConstellationWord} {moonName} belongs to.\nClamped to what is set in [ConstellationList] (default listing)", new AcceptableValueList<string>([.. ConstellationsList]));
-                    AddToConstelMoons(moonName, levelToConstellation.Value, stayHiding.Value);
+                    List<string> constellationList = CommonStringStuff.GetKeywordsPerConfigItem(levelToConstellation.Value, ',');
+                    constellationList.Do(c => AddToConstelMoons(moonName, c, stayHiding.Value));
                 }
                 else
                 {
-                    ConfigEntry<string> levelToConstellation = MakeString(Configuration.GeneratedConfig, "Moons", $"{moonName} {ConstellationWord}", defaultValue, $"Specify which {ConstellationWord} {moonName} belongs to.\nShould match an item from [ConstellationList]\nIf adding to multiple {ConstellationsWord}, separate each {ConstellationWord} by a comma.\nWill be autoset to a random {ConstellationWord} if not matching one.");
-
-                    if (levelToConstellation.Value.Contains(","))
-                    {
-                        List<string> constellationList = CommonStringStuff.GetKeywordsPerConfigItem(levelToConstellation.Value, ',');
-                        foreach (string conName in constellationList)
-                        {
-                            AddToConstelMoons(moonName, conName, stayHiding.Value);
-                        }
-                    }
+                    if (ConstellationsList.Any(c => c.ToLower() == levelToConstellation.Value.ToLower()))
+                        AddToConstelMoons(moonName, levelToConstellation.Value, stayHiding.Value);
                     else
                     {
-                        if (ConstellationsList.Any(c => c.ToLower() == levelToConstellation.Value.ToLower()))
-                            AddToConstelMoons(moonName, levelToConstellation.Value, stayHiding.Value);
-                        else
-                        {
-                            int chosen = Rand.Next(0, ConstellationsList.Count);
-                            levelToConstellation.Value = ConstellationsList[chosen];
-                            AddToConstelMoons(moonName, levelToConstellation.Value, stayHiding.Value);
-                        }
+                        int chosen = Rand.Next(0, ConstellationsList.Count);
+                        levelToConstellation.Value = ConstellationsList[chosen];
+                        AddToConstelMoons(moonName, levelToConstellation.Value, stayHiding.Value);
                     }
-
                 }
 
-                MoonPrices.Add(extendedLevel, levelPrice.Value);
             }
+
+            MoonPrices.Add(extendedLevel, levelPrice.Value);
         }
 
         internal static void AddToConstelMoons(string newMoon, string cName, bool stayHidden)
@@ -342,16 +335,17 @@ namespace LethalConstellations.EventStuff
             if (ConstellationStuff.Count < 0)
                 return;
 
-            foreach (ClassMapper constel in ConstellationStuff)
-            {
-                if (constel.consName == cName && !constel.constelMoons.Contains(newMoon))
-                {
-                    constel.constelMoons.Add(newMoon);
-                    if (stayHidden)
-                        constel.stayHiddenMoons.Add(newMoon);
-                    Plugin.Spam($"adding {newMoon} to {cName} / stayHidden: {stayHidden}");
-                }
-            }
+            List<ClassMapper> matching = ConstellationStuff.FindAll(x => x.consName == cName && !x.constelMoons.Contains(newMoon));
+
+            matching.Do(x => AddMoonTo(x, newMoon, stayHidden));
+        }
+
+        private static void AddMoonTo(ClassMapper mapped, string newMoon, bool stayHidden)
+        {
+            mapped.constelMoons.Add(newMoon);
+            if (stayHidden)
+                mapped.stayHiddenMoons.Add(newMoon);
+            Plugin.Spam($"adding {newMoon} to {mapped.consName} / stayHidden: {stayHidden}");
         }
 
         internal static int GetMoonPrice(string moonName)
@@ -359,11 +353,8 @@ namespace LethalConstellations.EventStuff
             if (MoonPrices.Count < 1)
                 return 0;
 
-            foreach (KeyValuePair<ExtendedLevel, int> moon in MoonPrices)
-            {
-                if (moon.Key.NumberlessPlanetName.ToLower() == moonName.ToLower())
-                    return moon.Value;
-            }
+            if(MoonPrices.Any(m => m.Key.NumberlessPlanetName.ToLower() == moonName.ToLower()))
+                return MoonPrices.FirstOrDefault(m => m.Key.NumberlessPlanetName.ToLower() == moonName.ToLower()).Value;
 
             return 0;
         }
@@ -377,22 +368,6 @@ namespace LethalConstellations.EventStuff
             Random ran = new();
             int rand = ran.Next(0, constellation.constelMoons.Count);
             return constellation.constelMoons[rand];
-        }
-
-        internal static string BepinFriendlyString(string input)
-        {
-            char[] invalidChars = ['\'', '\n', '\t', '\\', '"', '[', ']'];
-            string result = "";
-
-            foreach (char c in input)
-            {
-                if (!invalidChars.Contains(c))
-                    result += c;
-                else
-                    continue;
-            }
-
-            return result;
         }
     }
 }
