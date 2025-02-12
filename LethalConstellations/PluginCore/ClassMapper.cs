@@ -11,7 +11,7 @@ namespace LethalConstellations.PluginCore
 
     public class ClassMapper
     {
-        public string consName;
+        public string consName = "";
         public List<string> constelMoons = [];
         public List<string> stayHiddenMoons = [];
         public bool buyOnce;
@@ -21,8 +21,8 @@ namespace LethalConstellations.PluginCore
         public float originalDistance; //original currentDistance to starter constellation
         public string defaultMoon;
         public ExtendedLevel defaultMoonLevel;
-        internal string menuText;
-        internal string infoText;
+        internal string menuText = "";
+        internal string infoText = "";
         public bool isHidden;
         public string optionalParams = ""; //for use in external mods. Can be used to add information to the main menu
         public bool isLocked; //for use in other mods that will modify constellations display

@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.3.2]
+ - Hotfix for NRE that occured when ``ConstellationSpecificInfoNodes`` is disabled
+
 ## [0.3.1]
  - Added ExitPage config item in Menu Settings section to determine what page opens when leaving the constellations menu.
 	- should work with any valid keyword and will load the help page if that fails.
