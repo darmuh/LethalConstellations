@@ -408,7 +408,10 @@ namespace LethalConstellations.PluginCore
             if (ConstellationStuff.Count == 0)
                 return $"Unable to route to any {ConstellationsWord} at this time!\r\n\r\n\t{ConstellationWord} count is 0!!!\r\n\r\n";
 
-            DisplayConstellations = ConstellationStuff;
+            DisplayConstellations = ConstellationStuff.FindAll(x => !x.isHidden);
+            
+            if (DisplayConstellations.Count == 0)
+                return $"No discovered {ConstellationsWord} at this time!";
 
             if (Configuration.HideUnaffordableConstellations.Value)
                 DisplayConstellations = DisplayConstellations.FindAll(x => LevelStuff.GetConstPrice(x) <= Plugin.instance.Terminal.groupCredits);
