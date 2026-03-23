@@ -1,0 +1,49 @@
+<Project>
+  <!--
+    This is a special file that contains shared configuration
+    for all project files in subdirectories.
+  -->
+
+  <!-- Import our shared user configuration file -->
+  <Import
+    Project="$(SolutionRoot)Config.Build.user.props"
+    Condition="Exists('$(SolutionRoot)Config.Build.user.props')"
+  />
+
+  <!-- Primary configuration for the project -->
+  <PropertyGroup>
+    <!-- Use latest C# version. -->
+    <LangVersion>latest</LangVersion>
+    <!-- See: https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references -->
+    <Nullable>enable</Nullable>
+    <!-- https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/overview -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <!-- Build, and other generated files go nicely into artifacts/ directory. -->
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <!-- Enable debug symbols. This will show source code line numbers in stack traces. -->
+    <DebugSymbols>true</DebugSymbols>
+	<!-- Debug symbol type must be portable for use with Netcode patcher. -->
+	<DebugType>portable</DebugType>  
+	  
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <!-- Substitute full path to this directory with ./, hiding it from debug symbols. -->
+    <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
+  </PropertyGroup>
+
+  <!-- Custom props -->
+  <PropertyGroup>
+    <!-- Define a variable that points to this directory. -->
+    <SolutionRoot>$(MSBuildThisFileDirectory)</SolutionRoot>
+    <!--
+      Default values for paths. Do not modify,
+      instead configure your Config.Build.user.props file.
+    -->
+    <PathBeforeSteam Condition="'$([MSBuild]::IsOSUnixLike())' == 'true'">$(HOME)/.local/share/</PathBeforeSteam>
+    <PathBeforeSteam Condition="'$([MSBuild]::IsOSUnixLike())' != 'true'">$(MSBuildProgramFiles32)/</PathBeforeSteam>
+	<GameLoc Condition="$(GameLoc) == ''">C:\Program Files (x86)\Steam\steamapps\common\Lethal Company</GameLoc>
+    <PluginsDir Condition="$(PluginsDir) == ''">C:\Program Files (x86)\Steam\steamapps\common\Lethal Company/BepInEx/plugins/</PluginsDir>
+    <ManagedDir>$(GameLoc)/Lethal Company_Data/Managed/</ManagedDir>
+  </PropertyGroup>
+
+</Project>

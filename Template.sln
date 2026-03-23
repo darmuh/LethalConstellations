@@ -5,7 +5,7 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{97296E04-0E2F-4C1C-A0B9-6BDBFD3FF5F0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LethalConstellations", "src\LethalConstellations\LethalConstellations.csproj", "{513A9C14-EDBD-4354-BC22-A5BD1DDFFB6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LethalConstellations", "src\Template\LethalConstellations.csproj", "{513A9C14-EDBD-4354-BC22-A5BD1DDFFB6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
