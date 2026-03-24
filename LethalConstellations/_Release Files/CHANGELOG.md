@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [0.3.3]
+ - Hotfix: fix: hide hidden constellations from the menu ([#11](https://github.com/darmuh/LethalConstellations/pull/11))
+
 ## [0.3.2]
  - Hotfix for NRE that occured when ``ConstellationSpecificInfoNodes`` is disabled
 

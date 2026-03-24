@@ -1,10 +1,10 @@
 {
   "name": "LethalConstellations",
-  "version_number": "0.3.2",
+  "version_number": "0.3.3",
   "website_url": "https://github.com/darmuh/LethalConstellations",
   "description": "Dynamically change your moons list depending on which constellation your current moon is located in. (Highly Configurable)",
   "dependencies": [
-    "darmuh-OpenLib-0.2.14",
-    "IAmBatby-LethalLevelLoader-1.4.8"
+    "darmuh-OpenLib-0.4.1",
+    "IAmBatby-LethalLevelLoader-1.6.8"
   ]
 }
