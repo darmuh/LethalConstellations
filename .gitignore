@@ -366,3 +366,15 @@ FodyWeavers.xsd
 /LethalConstellations/stuff.txt
 /LethalConstellations/app.config
 /LethalConstellations/LethalConstellations.csproj
+/LethalConstellations/_Release Files/0Harmony.dll
+/LethalConstellations/_Release Files/0Harmony.xml
+/LethalConstellations/_Release Files/BepInEx.dll
+/LethalConstellations/_Release Files/BepInEx.xml
+/LethalConstellations/_Release Files/BMX.LobbyCompatibility.dll
+/LethalConstellations/_Release Files/LethalConfig.dll
+/LethalConstellations/_Release Files/LethalLevelLoader.dll
+/LethalConstellations/_Release Files/LethalNetworkAPI.dll
+/LethalConstellations/_Release Files/MonoMod.RuntimeDetour.dll
+/LethalConstellations/_Release Files/MonoMod.RuntimeDetour.xml
+/LethalConstellations/_Release Files/MonoMod.Utils.dll
+/LethalConstellations/_Release Files/MonoMod.Utils.xml
